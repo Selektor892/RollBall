@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BallBall">
+<meta name="theme-color" content="#07130f">
 <title>BallBall</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Rubik:wght@400;500;600&display=swap">
@@ -36,6 +41,7 @@ body { margin: 0; overflow: hidden; background: var(--bg); color: var(--chalk); 
 .board .clk { font-size: 18px; padding: 6px 14px; display: flex; align-items: center; font-variant-numeric: tabular-nums; min-width: 64px; justify-content: center; }
 .board .clk.gg { color: var(--card); font-size: 14px; letter-spacing: .1em; }
 
+#target { margin-top: 6px; text-align: center; font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--chalk); text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 #banner { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 6; }
 #banner .in { text-align: center; opacity: 0; transform: scale(.7); }
 #banner.show .in { animation: pop 1.9s cubic-bezier(.2,.9,.3,1.2) forwards; }
@@ -125,6 +131,7 @@ body.touchdev .keyOnly { display: none; }
     <div class="sc b" id="sb">0</div>
     <div class="tm b">Blu<i></i></div>
   </div>
+  <div id="target" hidden></div>
 </div>
 
 <div id="banner"><div class="in"><h2 id="bTitle">GOL!</h2><p id="bSub"></p></div></div>
@@ -135,7 +142,7 @@ body.touchdev .keyOnly { display: none; }
   <div id="stick"><div id="knob"></div></div>
   <div id="kickPad">TIRA</div>
 </div>
-<div id="touchSide" hidden><button id="tView" aria-label="Cambia visuale">3D</button><button id="tPause" aria-label="Pausa">II</button></div>
+<div id="touchSide" hidden><button id="tFull" aria-label="Schermo intero">⛶</button><button id="tView" aria-label="Cambia visuale">3D</button><button id="tPause" aria-label="Pausa">II</button></div>
 
 <div class="overlay" id="menu">
   <div class="panel">
@@ -176,6 +183,22 @@ body.touchdev .keyOnly { display: none; }
           <button data-v="120" aria-pressed="false">2 min</button>
           <button data-v="180" aria-pressed="true">3 min</button>
           <button data-v="300" aria-pressed="false">5 min</button>
+          <button data-v="0" aria-pressed="false">Senza</button>
+        </div></div>
+    </div>
+    <div class="row">
+      <div><div class="lbl">Gol per vincere</div>
+        <div class="seg" id="goals">
+          <button data-v="0" aria-pressed="true">Libero</button>
+          <button data-v="3" aria-pressed="false">3</button>
+          <button data-v="5" aria-pressed="false">5</button>
+          <button data-v="7" aria-pressed="false">7</button>
+          <button data-v="10" aria-pressed="false">10</button>
+        </div></div>
+      <div><div class="lbl">Visuale</div>
+        <div class="seg" id="view">
+          <button data-v="0" aria-pressed="true">Inclinata</button>
+          <button data-v="1" aria-pressed="false">Dall'alto</button>
         </div></div>
     </div>
     <div>
@@ -243,7 +266,7 @@ const DIFF = {
 };
 
 /* ---------- Opzioni dal menu (ricordate nel browser se possibile) ---------- */
-const opts = { mode: "solo", diff: "normal", dur: 180 };
+const opts = { mode: "solo", diff: "normal", dur: 180, goals: 0, view: 0 };
 try { Object.assign(opts, JSON.parse(localStorage.getItem("ballball-opts") || "{}")); } catch (e) {}
 function saveOpts() { try { localStorage.setItem("ballball-opts", JSON.stringify(opts)); } catch (e) {} }
 
@@ -432,7 +455,9 @@ function setupMatch(mode, live) {
   else if (mode === "pvp2") players.push(makePlayer("red", "p1", "P1"), makePlayer("red", "cpu", "CPU"), makePlayer("blue", "p2", "P2"), makePlayer("blue", "cpu", "CPU"));
   else if (mode === "coop") players.push(makePlayer("red", "p1", "P1"), makePlayer("red", "p2", "P2"), makePlayer("blue", "cpu", "CPU"), makePlayer("blue", "cpu", "CPU"));
   void H1;
-  G.live = live; G.score.red = 0; G.score.blue = 0; G.time = opts.dur; G.golden = false;
+  G.live = live; G.score.red = 0; G.score.blue = 0; G.time = live ? opts.dur : 180; G.golden = false;
+  G.timed = !live || opts.dur > 0; G.goalLimit = live ? opts.goals : 0;
+  $("target").hidden = !G.goalLimit; $("target").textContent = "Vince chi arriva a " + G.goalLimit;
   G.phase = live ? "play" : "demo";
   resetKickoff(Math.random() < 0.5 ? "red" : "blue");
   updateHud();
@@ -622,7 +647,8 @@ function step() {
   if (G.phase === "play" || G.phase === "demo") {
     if (Math.abs(ball.x) > W && Math.abs(ball.z) < GH) scoreGoal(ball.x > 0 ? "red" : "blue");
   }
-  if (G.phase === "play" && !G.kickoff && !G.golden) {
+  if (G.phase === "play" && !G.kickoff && !G.timed) { G.time += DT; updateClock(); }
+  if (G.phase === "play" && !G.kickoff && !G.golden && G.timed) {
     G.time -= DT;
     if (G.time <= 0) {
       G.time = 0;
@@ -634,7 +660,8 @@ function step() {
   if (G.phase === "goal") {
     G.phaseT -= DT;
     if (G.phaseT <= 0) {
-      if (G.live && (G.golden || G.time <= 0)) endMatch();
+      const limitHit = G.goalLimit && Math.max(G.score.red, G.score.blue) >= G.goalLimit;
+      if (G.live && (G.golden || limitHit || (G.timed && G.time <= 0))) endMatch();
       else { resetKickoff(G.conceded); G.phase = G.live ? "play" : "demo"; }
     }
   }
@@ -667,7 +694,7 @@ function updateClock() {
   const c = $("clock");
   if (G.golden) { c.textContent = "GOLDEN"; c.classList.add("gg"); return; }
   c.classList.remove("gg");
-  const t = Math.ceil(G.time), m = Math.floor(t / 60), s = t % 60;
+  const t = G.timed ? Math.ceil(G.time) : Math.floor(G.time), m = Math.floor(t / 60), s = t % 60;
   c.textContent = m + ":" + String(s).padStart(2, "0");
 }
 function updateHud() { $("sr").textContent = G.score.red; $("sb").textContent = G.score.blue; updateClock(); }
@@ -721,14 +748,18 @@ const sfx = (() => {
 })();
 
 /* ---------- Menu e tasti ---------- */
-function bindSeg(id, key, parse) {
+function bindSeg(id, key, parse, after) {
   const el = $(id);
   const sync = () => el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(String(opts[key]) === b.dataset.v)));
-  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; opts[key] = parse(b.dataset.v); saveOpts(); sync(); });
+  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; opts[key] = parse(b.dataset.v); saveOpts(); sync(); if (after) after(); });
   sync();
+  return sync;
 }
 bindSeg("diff", "diff", v => v);
 bindSeg("dur", "dur", v => +v);
+bindSeg("goals", "goals", v => +v);
+const syncView = bindSeg("view", "view", v => +v, () => { G.view = opts.view; fitCamera(); });
+function toggleView() { opts.view = G.view = 1 - G.view; saveOpts(); syncView(); fitCamera(); }
 (function bindModes() {
   const el = $("modes");
   const sync = () => el.querySelectorAll(".mode").forEach(b => b.setAttribute("aria-pressed", String(opts.mode === b.dataset.mode)));
@@ -736,7 +767,17 @@ bindSeg("dur", "dur", v => +v);
   el.addEventListener("dblclick", e => { if (e.target.closest(".mode")) startGame(); });
   sync();
 })();
-function startGame() { sfx.init(); if (document.activeElement) document.activeElement.blur(); setupMatch(opts.mode, true); show(null); }
+const fsSupported = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+function goFullscreen() {
+  const el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!rq || document.fullscreenElement || document.webkitFullscreenElement) return;
+  try {
+    const r = rq.call(el, { navigationUI: "hide" });
+    const lock = () => { try { const o = screen.orientation; if (o && o.lock) o.lock("landscape").catch(() => {}); } catch (e) {} };
+    if (r && r.then) r.then(lock).catch(() => {}); else lock();
+  } catch (e) {}
+}
+function startGame() { sfx.init(); if (isTouch) goFullscreen(); if (document.activeElement) document.activeElement.blur(); setupMatch(opts.mode, true); show(null); }
 function toMenu() { show("menu"); setupMatch("demo", false); }
 function togglePause() {
   if (G.phase === "paused") { G.phase = G.prevPhase; show(null); }
@@ -755,7 +796,7 @@ addEventListener("keydown", e => {
   if (inGame) down.add(e.code);
   if (e.repeat) return;
   if (e.code === "Escape" || e.code === "KeyP") togglePause();
-  else if (e.code === "KeyV") { G.view = 1 - G.view; fitCamera(); }
+  else if (e.code === "KeyV") toggleView();
   else if (e.code === "KeyM") G.sound = !G.sound;
   else if (e.code === "Enter" && !$("menu").hidden && !(document.activeElement && document.activeElement.tagName === "BUTTON")) { e.preventDefault(); startGame(); }
 });
@@ -814,7 +855,9 @@ tl.addEventListener("pointerup", touchEnd);
 tl.addEventListener("pointercancel", touchEnd);
 tl.addEventListener("contextmenu", e => e.preventDefault());
 $("tPause").addEventListener("click", togglePause);
-$("tView").addEventListener("click", () => { G.view = 1 - G.view; fitCamera(); });
+$("tView").addEventListener("click", toggleView);
+$("tFull").addEventListener("click", () => { if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else goFullscreen(); });
+if (!fsSupported) $("tFull").hidden = true;
 placeStickHome();
 
 /* ---------- Camera ---------- */
@@ -869,6 +912,7 @@ function frame(t) {
   render(acc / DT);
 }
 
+G.view = opts.view ? 1 : 0;
 fitCamera();
 setupMatch("demo", false);
 show("menu");

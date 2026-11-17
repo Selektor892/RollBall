@@ -23,3 +23,11 @@ Tieni premuto il tasto di tiro: l'anello bianco si accende e la palla parte appe
 
 ## Tecnica
 Un solo file HTML con [Three.js](https://threejs.org/) r149 caricato da CDN. Nessuna build.
+
+## Opzioni nel menu
+- **Durata**: 2, 3 o 5 minuti, oppure senza limite di tempo.
+- **Gol per vincere**: libero, 3, 5, 7 o 10. La partita finisce appena una squadra ci arriva.
+- **Visuale**: inclinata (3D) o dall'alto. Si cambia anche in partita con V o con il tasto 3D sul telefono.
+
+## Schermo intero su telefono
+Su Android il gioco va a schermo intero quando premi Gioca, e c'è un tasto apposito in alto a destra. Su iPhone Safari non permette lo schermo intero alle pagine web: usa Condividi → Aggiungi alla schermata Home e apri il gioco da lì.
