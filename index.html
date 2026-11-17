@@ -22,6 +22,7 @@
   --red: #ef4b45;
   --blue: #3b82f6;
   --card: #ffd23f;
+  --sky: #5fe1ff;
   --display: "Chakra Petch", "Rubik", system-ui, sans-serif;
   --body: "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
@@ -116,8 +117,17 @@ button:focus-visible { outline: 2px solid var(--card); outline-offset: 2px; }
 #stick { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 2px solid rgba(238,244,236,.35); background: rgba(8,20,15,.25); pointer-events: none; opacity: .55; transition: opacity .15s; }
 #stick.on { opacity: 1; }
 #knob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(238,244,236,.75); box-shadow: 0 4px 12px rgba(0,0,0,.35); }
-#kickPad { position: absolute; right: calc(28px + env(safe-area-inset-right, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; border: 3px solid rgba(238,244,236,.55); background: rgba(8,20,15,.3); color: var(--chalk); font: 700 16px var(--display); letter-spacing: .1em; pointer-events: none; transition: transform .08s, background .08s; }
-#kickPad.on { background: rgba(255,210,63,.85); color: #1d1a08; border-color: var(--card); transform: scale(.92); }
+.pad { position: absolute; border-radius: 50%; display: grid; place-items: center; background: rgba(8,20,15,.3); color: var(--chalk); font: 700 15px var(--display); letter-spacing: .1em; pointer-events: none; transition: transform .08s, background .08s; }
+.pad svg { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); transform: rotate(-90deg); overflow: visible; }
+.pad .trk { fill: none; stroke: rgba(238,244,236,.5); stroke-width: 3; }
+.pad .bar { fill: none; stroke-width: 7; stroke-linecap: round; }
+.pad span { position: relative; }
+#kickPad { right: calc(28px + env(safe-area-inset-right, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); width: 104px; height: 104px; }
+#kickPad .bar { stroke: var(--card); }
+#crossPad { right: calc(150px + env(safe-area-inset-right, 0px)); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: 80px; height: 80px; font-size: 13px; }
+#crossPad .bar { stroke: var(--sky); }
+#kickPad.on { background: rgba(255,210,63,.3); transform: scale(.94); }
+#crossPad.on { background: rgba(95,225,255,.28); transform: scale(.94); }
 #touchSide { position: absolute; top: calc(10px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); display: flex; gap: 8px; z-index: 6; }
 #touchSide button { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--chalk); font: 700 15px var(--display); }
 .touchOnly { display: none; }
@@ -160,7 +170,8 @@ body.touchdev .keyOnly { display: none; }
 
 <div id="touch" hidden>
   <div id="stick"><div id="knob"></div></div>
-  <div id="kickPad">TIRA</div>
+  <div class="pad" id="crossPad"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="48"></circle><circle class="bar" cx="50" cy="50" r="48" pathLength="100" stroke-dasharray="0 100"></circle></svg><span>CROSS</span></div>
+  <div class="pad" id="kickPad"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="48"></circle><circle class="bar" cx="50" cy="50" r="48" pathLength="100" stroke-dasharray="0 100"></circle></svg><span>TIRA</span></div>
 </div>
 <div id="touchSide" hidden><button id="tFull" aria-label="Schermo intero">⛶</button><button id="tView" aria-label="Cambia visuale">3D</button><button id="tPause" aria-label="Pausa">II</button></div>
 
@@ -256,21 +267,21 @@ body.touchdev .keyOnly { display: none; }
       <div class="keys touchOnly" style="grid-template-columns:1fr">
         <div><h4><i style="background:var(--red)"></i>Touch · Giocatore 1</h4>
           <span>Pollice sinistro: trascina per muovere</span>
-          <span>Pollice destro: tieni premuto per tirare</span>
+          <span>Pollice destro: tieni premuto TIRA o CROSS per caricare, rilascia per calciare</span>
           <span class="hint">Meglio con il telefono in orizzontale.</span></div>
       </div>
       <div class="keys keyOnly">
         <div><h4><i style="background:var(--red)"></i>Giocatore 1 · Rossi</h4>
           <span><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> muovi</span>
-          <span><kbd>Spazio</kbd> tieni premuto per tirare</span></div>
+          <span><kbd>Spazio</kbd> tiro · <kbd>C</kbd> cross</span></div>
         <div><h4><i style="background:var(--blue)"></i>Giocatore 2 · Blu</h4>
           <span><kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd> muovi</span>
-          <span><kbd>Invio</kbd> o <kbd>Ctrl destro</kbd> tira</span></div>
+          <span><kbd>Invio</kbd> tiro · <kbd>Shift destro</kbd> cross</span></div>
       </div>
     </div>
     <div class="go" id="goRow">
       <button class="btn" id="start">Gioca</button>
-      <span class="hint">Si tira solo quando la palla tocca il tuo anello bianco. Pareggio a fine tempo? Golden goal.</span>
+      <span class="hint">Tieni premuto tiro o cross per caricare la potenza, rilascia per calciare: se la palla non è ancora vicina, il calcio parte appena la tocchi. Pareggio a fine tempo? Golden goal.</span>
     </div>
   </div>
 </div>
@@ -306,7 +317,13 @@ const GH = 64, GD = 34, GT = 40;  // metà luce della porta, profondità, altezz
 const PR = 15, BR = 10, POSTR = 8;
 const OX = W + 60, OZ = H + 50;   // limite di movimento dei giocatori (fuori dalle linee)
 const KO_R = 75;                  // raggio cerchio di centrocampo
-const P_ACC = 0.1, P_ACC_K = 0.07, P_DAMP = 0.96, B_DAMP = 0.99, KICK = 5.2, KICK_REACH = 4;
+const P_ACC = 0.1, P_ACC_K = 0.07, P_DAMP = 0.96, B_DAMP = 0.99, KICK_REACH = 4;
+// calci a carica: 0 = tocco veloce, 1 = carica piena (circa 0,8 secondi)
+const CHARGE_FRAMES = 48, ARM_FRAMES = 12;
+const SHOT = { min: 3.2, max: 7.4 };                  // tiro rasoterra
+const CROSS = { min: 2.6, max: 5.4, up0: 2.2, up1: 4.4 }; // cross: velocità orizzontale e spinta verso l'alto
+const GRAV = 0.15, HEAD = PR * 2 - 6;                  // la palla sopra HEAD passa sopra i giocatori
+const CHARGE_COL = { 1: 0xffd23f, 2: 0x5fe1ff };
 const DT = 1 / 60;
 
 const TEAMS = { red: { name: "Rossi", col: 0xe8433f, dark: "#7a1d1a" }, blue: { name: "Blu", col: 0x2f78f0, dark: "#163a78" } };
@@ -470,6 +487,7 @@ function labelSprite(text, bg) {
 /* ---------- Entità ---------- */
 function disc(x, z, r, invM, e) { return { x, z, px: x, pz: z, vx: 0, vz: 0, r, invM, e }; }
 const ball = disc(0, 0, BR, 1, 0.5);
+ball.y = 0; ball.vy = 0; ball.py = 0;
 ball.mesh = new THREE.Mesh(new THREE.SphereGeometry(BR, 32, 24), new THREE.MeshStandardMaterial({ map: ballTexture(), roughness: 0.4 }));
 ball.mesh.castShadow = true; scene.add(ball.mesh);
 const posts = [];
@@ -482,17 +500,20 @@ let players = [];
 
 function makePlayer(team, ctrl, label) {
   const p = disc(0, 0, PR, 0.5, 0.5);
-  Object.assign(p, { team, ctrl, kicking: false, kickReady: true, flash: 0, aiT: 0, aiLast: { x: 0, z: 0, kick: false }, aimJ: 0, role: "atk" });
+  Object.assign(p, { team, ctrl, kicking: false, hold: 0, charge: 0, armed: 0, armType: 1, armPow: 0, aiCd: 0, flash: 0, aiT: 0, aiLast: { x: 0, z: 0, kick: false, cross: false }, aimJ: 0, role: "atk" });
   texCache[team] = texCache[team] || playerTexture(TEAMS[team].col);
   p.mesh = new THREE.Mesh(playerGeo, new THREE.MeshStandardMaterial({ map: texCache[team], roughness: 0.32, metalness: 0.08 }));
   p.mesh.castShadow = true;
   p.ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false }));
   p.ring.rotation.x = -Math.PI / 2;
   p.label = labelSprite(label, ctrl === "cpu" ? "rgba(10,20,16,0.6)" : TEAMS[team].dark);
-  scene.add(p.mesh, p.ring, p.label);
+  // barra di carica: arco attorno al cerchio, si riempie in senso orario partendo dall'alto
+  p.bar = new THREE.Mesh(new THREE.RingGeometry(PR + 6, PR + 10, 60, 1, Math.PI / 2, -Math.PI * 2), new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide }));
+  p.bar.rotation.x = -Math.PI / 2; p.bar.geometry.setDrawRange(0, 0);
+  scene.add(p.mesh, p.ring, p.label, p.bar);
   return p;
 }
-function clearPlayers() { for (const p of players) { scene.remove(p.mesh, p.ring, p.label); p.mesh.material.dispose(); p.ring.material.dispose(); p.label.material.map.dispose(); p.label.material.dispose(); } players = []; }
+function clearPlayers() { for (const p of players) { scene.remove(p.mesh, p.ring, p.label, p.bar); p.bar.geometry.dispose(); p.bar.material.dispose(); p.mesh.material.dispose(); p.ring.material.dispose(); p.label.material.map.dispose(); p.label.material.dispose(); } players = []; }
 
 /* ---------- Stato della partita ---------- */
 const G = { phase: "demo", live: false, score: { red: 0, blue: 0 }, time: 180, golden: false, kickoff: "red", phaseT: 0, shake: 0, view: 0, sound: true };
@@ -516,29 +537,29 @@ function setupMatch(mode, live, cfg) {
 
 function resetKickoff(team) {
   G.kickoff = team;
-  Object.assign(ball, { x: 0, z: 0, px: 0, pz: 0, vx: 0, vz: 0 });
+  Object.assign(ball, { x: 0, z: 0, px: 0, pz: 0, vx: 0, vz: 0, y: 0, vy: 0, py: 0 });
   for (const t of ["red", "blue"]) {
     const sd = t === "red" ? -1 : 1;
     const mates = players.filter(p => p.team === t);
     const spots = mates.length === 1 ? [[170, 0]] : [[140, -55], [250, 50]];
-    mates.forEach((p, i) => { const [x, z] = spots[i]; Object.assign(p, { x: sd * x, z, px: sd * x, pz: z, vx: 0, vz: 0, kickReady: false }); });
+    mates.forEach((p, i) => { const [x, z] = spots[i]; Object.assign(p, { x: sd * x, z, px: sd * x, pz: z, vx: 0, vz: 0, hold: 0, charge: 0, armed: 0 }); });
   }
 }
 
 /* ---------- Input ---------- */
 const down = new Set();
 const MAP = {
-  p1: { up: ["KeyW"], dn: ["KeyS"], lt: ["KeyA"], rt: ["KeyD"], kick: ["Space", "KeyC"] },
-  p2: { up: ["ArrowUp"], dn: ["ArrowDown"], lt: ["ArrowLeft"], rt: ["ArrowRight"], kick: ["Enter", "NumpadEnter", "Numpad0", "ControlRight", "ShiftRight", "KeyL"] },
+  p1: { up: ["KeyW"], dn: ["KeyS"], lt: ["KeyA"], rt: ["KeyD"], kick: ["Space"], cross: ["KeyC", "ShiftLeft"] },
+  p2: { up: ["ArrowUp"], dn: ["ArrowDown"], lt: ["ArrowLeft"], rt: ["ArrowRight"], kick: ["Enter", "NumpadEnter", "Numpad0", "ControlRight", "KeyL"], cross: ["ShiftRight", "Period", "NumpadDecimal", "KeyK"] },
 };
-MAP.solo = {}; for (const k of ["up", "dn", "lt", "rt", "kick"]) MAP.solo[k] = MAP.p1[k].concat(MAP.p2[k]);
+MAP.solo = {}; for (const k of ["up", "dn", "lt", "rt", "kick", "cross"]) MAP.solo[k] = MAP.p1[k].concat(MAP.p2[k]);
 const GAME_KEYS = new Set([].concat(...Object.values(MAP.solo)));
 const any = arr => arr.some(c => down.has(c));
-const touch = { x: 0, z: 0, kick: false, stickId: null, kickIds: new Set(), ox: 0, oy: 0 };
+const touch = { x: 0, z: 0, kick: false, cross: false, stickId: null, pads: new Map(), ox: 0, oy: 0 };
 function humanInput(p) {
   const m = MAP[p.ctrl];
-  const inp = { x: (any(m.rt) ? 1 : 0) - (any(m.lt) ? 1 : 0), z: (any(m.dn) ? 1 : 0) - (any(m.up) ? 1 : 0), kick: any(m.kick) };
-  if (p.ctrl === "solo" || p.ctrl === "p1") { inp.x += touch.x; inp.z += touch.z; inp.kick = inp.kick || touch.kick; }
+  const inp = { x: (any(m.rt) ? 1 : 0) - (any(m.lt) ? 1 : 0), z: (any(m.dn) ? 1 : 0) - (any(m.up) ? 1 : 0), kick: any(m.kick), cross: any(m.cross) };
+  if (p.ctrl === "solo" || p.ctrl === "p1") { inp.x += touch.x; inp.z += touch.z; inp.kick = inp.kick || touch.kick; inp.cross = inp.cross || touch.cross; }
   return inp;
 }
 
@@ -561,7 +582,7 @@ function aiInput(p) {
 
   const bx = clamp(ball.x + ball.vx * D.look, -W - GD, W + GD), bz = clamp(ball.z + ball.vz * D.look, -H, H);
   const dBall = dist(p);
-  let tx, tz, kick = false;
+  let tx, tz, kick = false, cross = false, pow = 1;
 
   if (p.role === "def") {
     tx = ownX + atk * 95 + (bx - ownX) * 0.38;
@@ -586,15 +607,17 @@ function aiInput(p) {
     }
     const align = ((ball.x - p.x) * dx + (ball.z - p.z) * dz) / (dBall || 1);
     const dGoal = Math.hypot(goalX - ball.x, ball.z);
-    if (dBall < PR + BR + KICK_REACH + 1 && align > D.align && (dGoal < D.range || Math.random() < 0.03)) kick = true;
+    if (dBall < PR + BR + KICK_REACH + 1 && align > D.align && (dGoal < D.range || Math.random() < 0.03)) { kick = true; pow = clamp(dGoal / 330, 0.45, 1); }
+    // dal fondo: cross a parabola verso il centro dell'area
+    if (kick && ax !== goalX) { kick = false; cross = true; pow = 0.45 + Math.random() * 0.2; }
     // spazzata d'emergenza vicino alla propria porta
-    if (dBall < PR + BR + KICK_REACH + 1 && Math.abs(ball.x - ownX) < 130 && (ball.x - p.x) * atk > 0) kick = true;
-    if (kick) p.aimJ = (Math.random() - 0.5) * GH * 0.9;
+    if (dBall < PR + BR + KICK_REACH + 1 && Math.abs(ball.x - ownX) < 130 && (ball.x - p.x) * atk > 0) { kick = true; cross = false; pow = 1; }
+    if (kick || cross) p.aimJ = (Math.random() - 0.5) * GH * 0.9;
   }
   tx = clamp(tx, -OX + PR, OX - PR); tz = clamp(tz, -OZ + PR, OZ - PR);
   const mx = tx - p.x, mz = tz - p.z, ml = Math.hypot(mx, mz) || 1;
   const mag = Math.min(1, ml / 14) * D.speed;
-  p.aiLast = { x: mx / ml * mag, z: mz / ml * mag, kick };
+  p.aiLast = { x: mx / ml * mag, z: mz / ml * mag, kick: false, cross: false, shot: kick ? 1 : cross ? 2 : 0, pow };
   return p.aiLast;
 }
 
@@ -618,7 +641,8 @@ function collide(a, b, e) {
 function ballWalls() {
   const b = ball, r = b.r, e = 0.6, sx = Math.sign(b.x) || 1, ax = Math.abs(b.x), az = Math.abs(b.z);
   let hit = 0;
-  if (ax > W) {
+  if (ax > W && az < GH && b.y > GT - BR && ax - Math.abs(b.vx) <= W + 1) { b.x = sx * (W - r); hit = Math.abs(b.vx); b.vx *= -0.5; }
+  else if (ax > W) {
     if (az >= GH) { b.x = sx * (W - r); hit = Math.abs(b.vx); b.vx *= -e; }
     else {
       if (az + r > GH) { b.z = Math.sign(b.z) * (GH - r); hit = Math.abs(b.vz); b.vz *= -0.3; }
@@ -651,6 +675,47 @@ function roll(m) {
   m.mesh.quaternion.premultiply(qTmp);
 }
 function touched() { if (G.kickoff) G.kickoff = null; }
+function chargeStep(p, inp) {
+  if (p.ctrl === "cpu") {
+    p.hold = 0; p.charge = 0;
+    if (p.aiCd > 0) p.aiCd--;
+    else if (inp.shot) { p.armed = 6; p.armType = inp.shot; p.armPow = inp.pow; }
+    return;
+  }
+  const hold = inp.kick ? 1 : inp.cross ? 2 : 0;
+  if (hold) {
+    if (p.hold !== hold) { p.hold = hold; p.charge = 0; }
+    p.charge = Math.min(1, p.charge + 1 / CHARGE_FRAMES);
+    p.armed = 0;
+  } else if (p.hold) {
+    p.armed = ARM_FRAMES; p.armType = p.hold; p.armPow = p.charge;
+    p.hold = 0; p.charge = 0;
+  }
+  p.kicking = !!p.hold;
+}
+function doKick(p, nx, nz) {
+  const c = p.armPow;
+  if (p.armType === 2) {
+    const sp = CROSS.min + (CROSS.max - CROSS.min) * c;
+    ball.vx = ball.vx * 0.3 + nx * sp; ball.vz = ball.vz * 0.3 + nz * sp;
+    ball.vy = CROSS.up0 + (CROSS.up1 - CROSS.up0) * c; ball.y = Math.max(ball.y, 1);
+  } else {
+    const sp = SHOT.min + (SHOT.max - SHOT.min) * c;
+    ball.vx += nx * sp * ball.invM; ball.vz += nz * sp * ball.invM;
+  }
+  p.flash = 1; p.aiCd = 20; touched();
+  sfx.kick((G.live ? 0.6 : 0.25) + c * 0.5); netEvent("k", players.indexOf(p));
+}
+function ballAir() {
+  ball.py = ball.y;
+  if (ball.y <= 0 && ball.vy <= 0) { ball.y = 0; ball.vy = 0; return; }
+  ball.vy -= GRAV; ball.y += ball.vy;
+  if (ball.y <= 0) {
+    ball.y = 0;
+    if (ball.vy < -1.2) { if (ball.vy < -2) sfx.thud(Math.min(0.5, -ball.vy / 10)); ball.vy = -ball.vy * 0.45; ball.vx *= 0.9; ball.vz *= 0.9; }
+    else ball.vy = 0;
+  }
+}
 
 function step() {
   const movers = players.concat(ball);
@@ -662,29 +727,27 @@ function step() {
     if (nx) { NET.inp = nx; NET.inSeq = nx.s; }
   }
   for (const p of players) {
-    let inp = frozen ? { x: 0, z: 0, kick: false } : (p.ctrl === "cpu" ? aiInput(p) : p.ctrl === "net" ? NET.inp : humanInput(p));
+    let inp = frozen ? { x: 0, z: 0, kick: false, cross: false } : (p.ctrl === "cpu" ? aiInput(p) : p.ctrl === "net" ? NET.inp : humanInput(p));
     let ix = inp.x, iz = inp.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; }
-    const acc = inp.kick ? P_ACC_K : P_ACC;
+    chargeStep(p, inp);
+    const acc = p.hold ? P_ACC_K : P_ACC;
     p.vx += ix * acc; p.vz += iz * acc;
-    p.kicking = inp.kick;
-    if (!inp.kick) p.kickReady = true;
   }
   for (const m of movers) { m.x += m.vx; m.z += m.vz; }
-  // tiri
+  ballAir();
+  // calci: partono al rilascio, o al primo contatto entro poco dopo
   for (const p of players) {
-    if (!p.kicking || !p.kickReady) continue;
+    if (p.armed <= 0) continue;
     const dx = ball.x - p.x, dz = ball.z - p.z, d = Math.hypot(dx, dz);
-    if (d < p.r + ball.r + KICK_REACH) {
-      ball.vx += dx / d * KICK * ball.invM; ball.vz += dz / d * KICK * ball.invM;
-      p.kickReady = false; p.flash = 1; touched();
-      sfx.kick(G.live ? 1 : 0.35); netEvent("k", players.indexOf(p));
-    }
+    if (d < p.r + ball.r + KICK_REACH && ball.y < HEAD - 4) { doKick(p, dx / d, dz / d); p.armed = 0; }
+    else p.armed--;
   }
   // collisioni
   for (let i = 0; i < movers.length; i++) {
     for (let j = i + 1; j < movers.length; j++) {
       const a = movers[i], b = movers[j];
       const isBall = a === ball || b === ball;
+      if (isBall && ball.y > HEAD) continue;   // palla alta: passa sopra
       const hit = collide(a, b, isBall ? 0.4 : 0.25);
       if (hit && isBall) touched();
     }
@@ -696,12 +759,12 @@ function step() {
   ballWalls();
   for (const p of players) playerBounds(p);
   for (const p of players) { p.vx *= P_DAMP; p.vz *= P_DAMP; }
-  ball.vx *= B_DAMP; ball.vz *= B_DAMP;
+  const bd = ball.y > 2 ? 0.996 : B_DAMP; ball.vx *= bd; ball.vz *= bd;
   for (const m of movers) roll(m);
   for (const p of players) p.flash *= 0.88;
 
   if (G.phase === "play" || G.phase === "demo") {
-    if (Math.abs(ball.x) > W && Math.abs(ball.z) < GH) scoreGoal(ball.x > 0 ? "red" : "blue");
+    if (Math.abs(ball.x) > W && Math.abs(ball.z) < GH && ball.y < GT) scoreGoal(ball.x > 0 ? "red" : "blue");
   }
   if (G.phase === "play" && !G.kickoff && !G.timed) { G.time += DT; updateClock(); }
   if (G.phase === "play" && !G.kickoff && !G.golden && G.timed) {
@@ -900,15 +963,15 @@ function markTouch() { if (!isTouch) { isTouch = true; document.body.classList.a
 if (isTouch) document.body.classList.add("touchdev");
 addEventListener("touchstart", markTouch, { passive: true });
 const STICK_R = 52;
-const stickEl = $("stick"), knobEl = $("knob"), kickEl = $("kickPad");
+const stickEl = $("stick"), knobEl = $("knob"), kickEl = $("kickPad"), crossEl = $("crossPad");
 function placeStickHome() {
   stickEl.style.left = (Math.max(90, innerWidth * 0.14)) + "px";
   stickEl.style.top = (innerHeight - Math.max(90, innerHeight * 0.22)) + "px";
   knobEl.style.transform = "";
 }
 function releaseTouch() {
-  touch.x = touch.z = 0; touch.kick = false; touch.stickId = null; touch.kickIds.clear();
-  stickEl.classList.remove("on"); kickEl.classList.remove("on"); placeStickHome();
+  touch.x = touch.z = 0; touch.kick = touch.cross = false; touch.stickId = null; touch.pads.clear();
+  stickEl.classList.remove("on"); kickEl.classList.remove("on"); crossEl.classList.remove("on"); placeStickHome();
 }
 const tl = $("touch");
 tl.addEventListener("pointerdown", e => {
@@ -917,7 +980,10 @@ tl.addEventListener("pointerdown", e => {
     touch.stickId = e.pointerId; touch.ox = e.clientX; touch.oy = e.clientY;
     stickEl.style.left = e.clientX + "px"; stickEl.style.top = e.clientY + "px"; stickEl.classList.add("on");
   } else {
-    touch.kickIds.add(e.pointerId); touch.kick = true; kickEl.classList.add("on");
+    // pollice destro: vale il tasto più vicino al punto toccato
+    const dist = el => { const r = el.getBoundingClientRect(); return Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) / r.width; };
+    touch.pads.set(e.pointerId, dist(crossEl) < dist(kickEl) ? "cross" : "kick");
+    syncPads();
   }
   try { tl.setPointerCapture(e.pointerId); } catch (err) {}
 });
@@ -938,7 +1004,22 @@ tl.addEventListener("pointermove", e => {
 });
 function touchEnd(e) {
   if (e.pointerId === touch.stickId) { touch.stickId = null; touch.x = touch.z = 0; stickEl.classList.remove("on"); placeStickHome(); }
-  if (touch.kickIds.delete(e.pointerId) && touch.kickIds.size === 0) { touch.kick = false; kickEl.classList.remove("on"); }
+  if (touch.pads.delete(e.pointerId)) syncPads();
+}
+function syncPads() {
+  const v = [...touch.pads.values()];
+  touch.kick = v.includes("kick"); touch.cross = !touch.kick && v.includes("cross");
+  kickEl.classList.toggle("on", touch.kick); crossEl.classList.toggle("on", touch.cross);
+}
+const padBars = { 1: kickEl.querySelector(".bar"), 2: crossEl.querySelector(".bar") };
+function updatePadBars() {
+  if ($("touch").hidden) return;
+  const me = players.find(p => p.ctrl === "solo" || p.ctrl === "p1");
+  for (const k of [1, 2]) {
+    const c = me && me.hold === k ? me.charge : 0;
+    padBars[k].setAttribute("stroke-dasharray", (c * 100).toFixed(1) + " 100");
+    padBars[k].style.opacity = c > 0.01 ? 1 : 0;
+  }
 }
 tl.addEventListener("pointerup", touchEnd);
 tl.addEventListener("pointercancel", touchEnd);
@@ -1009,7 +1090,7 @@ async function hostRoom() {
       if (!d || typeof d !== "object") return;
       if (d.t === "i" && +d.m === NET.match && +d.s > NET.lastQ) {
         NET.lastQ = +d.s;
-        NET.q.push({ s: +d.s, x: clamp(+d.x || 0, -1, 1), z: clamp(+d.z || 0, -1, 1), kick: !!d.k });
+        NET.q.push({ s: +d.s, x: clamp(+d.x || 0, -1, 1), z: clamp(+d.z || 0, -1, 1), kick: !!d.k, cross: !!d.c });
       }
     });
     c.on("close", () => { if (NET.conn === c) netLost("L'altro giocatore è uscito dalla partita."); });
@@ -1025,7 +1106,7 @@ function startNetMatch() {
   const mine = { host: ["solo", "TU"], guest: ["net", "AMICO"], cpu: ["cpu", "CPU"] };
   beginPlay();
   setupMatch("roster", true, Object.assign({ roster: roster.map(r => ({ team: r.team, ctrl: mine[r.kind][0], label: mine[r.kind][1] })) }, cfg));
-  G.net = "host"; NET.inp = { x: 0, z: 0, kick: false }; NET.ev = []; NET.q = []; NET.inSeq = 0; NET.lastQ = 0; NET.snapN = 0;
+  G.net = "host"; NET.inp = { x: 0, z: 0, kick: false, cross: false }; NET.ev = []; NET.q = []; NET.inSeq = 0; NET.lastQ = 0; NET.snapN = 0;
   NET.match++;
   NET.conn.send({ t: "start", m: NET.match, roster, cfg, diff: opts.diff });
   show(null);
@@ -1035,8 +1116,8 @@ const r2 = v => Math.round(v * 100) / 100;
 function netHostTick() {
   if (++NET.tick % 2 || !NET.conn || !NET.conn.open) return;
   const msg = {
-    t: "s", b: [r2(ball.x), r2(ball.z), r2(ball.vx), r2(ball.vz)],
-    p: players.map(p => [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), p.kicking ? 1 : 0]),
+    t: "s", b: [r2(ball.x), r2(ball.z), r2(ball.vx), r2(ball.vz), r2(ball.y), r2(ball.vy)],
+    p: players.map(p => [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), p.hold, r2(p.charge)]),
     sc: [G.score.red, G.score.blue], tm: Math.round(G.time * 10) / 10, gg: G.golden ? 1 : 0, ph: G.phase === "paused" ? G.prevPhase : G.phase,
     m: NET.match, n: ++NET.snapN, a: NET.inSeq, ko: G.kickoff || 0,
   };
@@ -1100,7 +1181,8 @@ function onGuestData(d) {
       if (Math.hypot(m.ex, m.ez) > 80) { m.ex = 0; m.ez = 0; }   // teletrasporto (calcio d'inizio)
     };
     apply(ball, d.b);
-    (d.p || []).forEach((a, i) => { const p = players[i]; if (!p) return; apply(p, a); if (p !== me) p.kicking = !!a[4]; });
+    ball.py = ball.y = Math.max(0, +d.b[4] || 0); ball.vy = +d.b[5] || 0;
+    (d.p || []).forEach((a, i) => { const p = players[i]; if (!p) return; apply(p, a); if (p !== me) { p.hold = a[4] | 0; p.charge = +a[5] || 0; p.kicking = !!p.hold; } });
     G.kickoff = d.ko || null;
     G.score.red = d.sc[0] | 0; G.score.blue = d.sc[1] | 0; G.time = +d.tm || 0; G.golden = !!d.gg;
     updateHud();
@@ -1111,7 +1193,7 @@ function onGuestData(d) {
 }
 function predictMove(p, h) {
   let ix = h.x, iz = h.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; }
-  const acc = h.k ? P_ACC_K : P_ACC;
+  const acc = h.k || h.c ? P_ACC_K : P_ACC;
   p.vx += ix * acc; p.vz += iz * acc;
   p.x += p.vx; p.z += p.vz;
   playerBounds(p);
@@ -1120,17 +1202,24 @@ function predictMove(p, h) {
 function guestTick() {
   const me = players[NET.me];
   const idle = G.phase === "over" || !$("menu").hidden;
-  const inp = idle ? { x: 0, z: 0, kick: false } : humanInput({ ctrl: "solo" });
-  const h = { s: ++NET.seq, x: r2(inp.x), z: r2(inp.z), k: inp.kick ? 1 : 0 };
+  const inp = idle ? { x: 0, z: 0, kick: false, cross: false } : humanInput({ ctrl: "solo" });
+  const h = { s: ++NET.seq, x: r2(inp.x), z: r2(inp.z), k: inp.kick ? 1 : 0, c: !inp.kick && inp.cross ? 1 : 0 };
   NET.hist.push(h); if (NET.hist.length > 300) NET.hist.shift();
-  if (NET.conn && NET.conn.open) { try { NET.conn.send({ t: "i", m: NET.match, s: h.s, x: h.x, z: h.z, k: h.k }); } catch (e) {} }
+  if (NET.conn && NET.conn.open) { try { NET.conn.send({ t: "i", m: NET.match, s: h.s, x: h.x, z: h.z, k: h.k, c: h.c }); } catch (e) {} }
   for (const m of players.concat(ball)) {
     m.px = m.x; m.pz = m.z;
-    if (m === me && !idle) { predictMove(m, h); m.kicking = !!h.k; }
+    if (m === me && !idle) {
+      predictMove(m, h);
+      // la barra di carica dell'ospite si vede subito, senza aspettare l'host
+      const hold = h.k ? 1 : h.c ? 2 : 0;
+      if (hold && m.hold !== hold) m.charge = 0;
+      m.hold = hold; m.charge = hold ? Math.min(1, m.charge + 1 / CHARGE_FRAMES) : 0; m.kicking = !!hold;
+    }
     else {
       // tra due aggiornamenti dell'host: prosegui con la velocità nota
       m.x += m.vx; m.z += m.vz;
-      const d = m === ball ? B_DAMP : P_DAMP; m.vx *= d; m.vz *= d;
+      const d = m === ball ? (ball.y > 2 ? 0.996 : B_DAMP) : P_DAMP; m.vx *= d; m.vz *= d;
+      if (m === ball) ballAir();
     }
     m.ex = (m.ex || 0) * 0.82; m.ez = (m.ez || 0) * 0.82;   // la correzione si assorbe in pochi fotogrammi
     roll(m);
@@ -1169,7 +1258,7 @@ addEventListener("resize", () => { fitCamera(); placeStickHome(); });
 function render(a) {
   const lerp = (p, c) => p + (c - p) * a;
   const ox = m => G.net === "guest" ? (m.ex || 0) : 0, oz = m => G.net === "guest" ? (m.ez || 0) : 0;
-  ball.mesh.position.set(lerp(ball.px, ball.x) + ox(ball), BR, lerp(ball.pz, ball.z) + oz(ball));
+  ball.mesh.position.set(lerp(ball.px, ball.x) + ox(ball), BR + lerp(ball.py, ball.y), lerp(ball.pz, ball.z) + oz(ball));
   for (const p of players) {
     const x = lerp(p.px, p.x) + ox(p), z = lerp(p.pz, p.z) + oz(p);
     p.mesh.position.set(x, PR, z);
@@ -1177,10 +1266,15 @@ function render(a) {
     p.ring.material.opacity = p.kicking ? 0.95 : 0.28;
     const s = 1 + p.flash * 0.45; p.ring.scale.set(s, s, 1);
     p.label.position.set(x, PR * 2 + 12, z - (G.view ? 24 : 0));
+    p.bar.position.set(x, 0.8, z);
+    const segs = Math.round(60 * (p.hold ? p.charge : 0));
+    p.bar.geometry.setDrawRange(0, segs * 6);
+    if (p.hold) p.bar.material.color.setHex(CHARGE_COL[p.hold]);
   }
-  if (G.netFlash) {
-    const m = nets[G.netFlash]; m.opacity += (0.45 - m.opacity) * 0.04;
-    if (m.opacity < 0.5) { m.color.setHex(0xffffff); m.opacity = 0.45; G.netFlash = 0; }
+  updatePadBars();
+  for (const sd of [-1, 1]) {
+    const m = nets[sd];
+    if (m.opacity > 0.45) { m.opacity += (0.45 - m.opacity) * 0.04; if (m.opacity < 0.5) { m.color.setHex(0xffffff); m.opacity = 0.45; } }
   }
   camera.position.copy(camBase);
   if (G.shake > 0.01) {

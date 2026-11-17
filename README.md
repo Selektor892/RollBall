@@ -16,15 +16,15 @@ Calcio 3D a sfere con visuale dall'alto, nel browser. Giocatori e palla sono sfe
 - **Visuale**: inclinata (3D) o dall'alto. In partita si cambia con V o con il tasto 3D sul telefono.
 
 ## Comandi
-| | Muovi | Tira |
-|---|---|---|
-| Giocatore 1 (Rossi) | W A S D | Spazio |
-| Giocatore 2 (Blu) | Frecce | Invio o Ctrl destro |
-| Touch (telefono in orizzontale) | pollice sinistro, trascina | pollice destro, tieni premuto |
+| | Muovi | Tiro | Cross |
+|---|---|---|---|
+| Giocatore 1 (Rossi) | W A S D | Spazio | C (o Shift sinistro) |
+| Giocatore 2 (Blu) | Frecce | Invio | Shift destro (o punto) |
+| Touch (telefono in orizzontale) | pollice sinistro, trascina | tasto TIRA | tasto CROSS |
 
 Online e in allenamento puoi usare sia WASD che le frecce. Esc o P: pausa (online il gioco non si ferma) · V: visuale · M: audio.
 
-Tieni premuto il tasto di tiro: l'anello bianco si accende e la palla parte appena la tocchi.
+**Tiro e cross a carica.** Tieni premuto il tasto: la barra attorno alla tua sfera (e sul bordo del tasto, da telefono) si riempie in circa 0,8 secondi. Rilascia per calciare: più è piena, più il calcio è forte. Se la palla non è ancora vicina quando rilasci, il calcio parte appena la tocchi. Il tiro è rasoterra; il cross alza la palla, che passa sopra i giocatori e ricade dopo qualche rimbalzo. Una palla troppo alta sbatte sulla traversa e non è gol.
 
 ## Schermo intero su telefono
 Su Android il gioco va a schermo intero quando inizi a giocare, e c'è un tasto apposito in alto a destra. Su iPhone Safari non permette lo schermo intero alle pagine web: usa Condividi → Aggiungi alla schermata Home e apri il gioco da lì.
