@@ -656,6 +656,11 @@ function step() {
   const movers = players.concat(ball);
   for (const m of movers) { m.px = m.x; m.pz = m.z; }
   const frozen = G.phase === "over";
+  if (G.net === "host") {
+    if (NET.q.length > 6) NET.q.splice(0, NET.q.length - 2);   // troppo arretrato: salta avanti
+    const nx = NET.q.shift();
+    if (nx) { NET.inp = nx; NET.inSeq = nx.s; }
+  }
   for (const p of players) {
     let inp = frozen ? { x: 0, z: 0, kick: false } : (p.ctrl === "cpu" ? aiInput(p) : p.ctrl === "net" ? NET.inp : humanInput(p));
     let ix = inp.x, iz = inp.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; }
@@ -945,7 +950,7 @@ if (!fsSupported) $("tFull").hidden = true;
 placeStickHome();
 
 /* ---------- Online: peer-to-peer con PeerJS (WebRTC), l'host simula e l'ospite riceve lo stato ---------- */
-const NET = { peer: null, conn: null, role: null, code: "", inp: { x: 0, z: 0, kick: false }, tick: 0, ev: [], snapAt: 0, lastIn: "", lastInAt: 0 };
+const NET = { peer: null, conn: null, role: null, code: "", inp: { x: 0, z: 0, kick: false }, tick: 0, ev: [], q: [], inSeq: 0, lastQ: 0, match: 0, snapN: 0, lastN: 0, seq: 0, hist: [], me: -1 };
 const PEER_JS = "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
 const PEER_OPTS = window.ROLLBALL_PEER || { debug: 0 };
 const PID = c => "rollball-v1-" + c;
@@ -961,7 +966,7 @@ function loadPeer() {
 function netUnavailable() { netStatus("Il gioco online qui non è disponibile. Aprilo da selektor892.github.io/RollBall per giocare con un amico.", "err"); }
 function netReset() {
   const c = NET.conn, p = NET.peer;
-  Object.assign(NET, { peer: null, conn: null, role: null, code: "", ev: [], inp: { x: 0, z: 0, kick: false } });
+  Object.assign(NET, { peer: null, conn: null, role: null, code: "", ev: [], q: [], hist: [], me: -1, inp: { x: 0, z: 0, kick: false } });
   G.net = null;
   try { if (c) c.close(); } catch (e) {}
   try { if (p) p.destroy(); } catch (e) {}
@@ -1002,7 +1007,10 @@ async function hostRoom() {
     c.on("open", () => startNetMatch());
     c.on("data", d => {
       if (!d || typeof d !== "object") return;
-      if (d.t === "i") NET.inp = { x: clamp(+d.x || 0, -1, 1), z: clamp(+d.z || 0, -1, 1), kick: !!d.k };
+      if (d.t === "i" && +d.m === NET.match && +d.s > NET.lastQ) {
+        NET.lastQ = +d.s;
+        NET.q.push({ s: +d.s, x: clamp(+d.x || 0, -1, 1), z: clamp(+d.z || 0, -1, 1), kick: !!d.k });
+      }
     });
     c.on("close", () => { if (NET.conn === c) netLost("L'altro giocatore è uscito dalla partita."); });
   });
@@ -1017,8 +1025,9 @@ function startNetMatch() {
   const mine = { host: ["solo", "TU"], guest: ["net", "AMICO"], cpu: ["cpu", "CPU"] };
   beginPlay();
   setupMatch("roster", true, Object.assign({ roster: roster.map(r => ({ team: r.team, ctrl: mine[r.kind][0], label: mine[r.kind][1] })) }, cfg));
-  G.net = "host"; NET.inp = { x: 0, z: 0, kick: false }; NET.ev = [];
-  NET.conn.send({ t: "start", roster, cfg, diff: opts.diff });
+  G.net = "host"; NET.inp = { x: 0, z: 0, kick: false }; NET.ev = []; NET.q = []; NET.inSeq = 0; NET.lastQ = 0; NET.snapN = 0;
+  NET.match++;
+  NET.conn.send({ t: "start", m: NET.match, roster, cfg, diff: opts.diff });
   show(null);
 }
 function netEvent(type, data) { if (G.net === "host") NET.ev.push(data === undefined ? [type] : [type, data]); }
@@ -1029,6 +1038,7 @@ function netHostTick() {
     t: "s", b: [r2(ball.x), r2(ball.z), r2(ball.vx), r2(ball.vz)],
     p: players.map(p => [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), p.kicking ? 1 : 0]),
     sc: [G.score.red, G.score.blue], tm: Math.round(G.time * 10) / 10, gg: G.golden ? 1 : 0, ph: G.phase === "paused" ? G.prevPhase : G.phase,
+    m: NET.match, n: ++NET.snapN, a: NET.inSeq, ko: G.kickoff || 0,
   };
   if (NET.ev.length) { msg.ev = NET.ev; NET.ev = []; }
   try { NET.conn.send(msg); } catch (e) {}
@@ -1045,7 +1055,7 @@ async function joinRoom() {
   try { peer = NET.peer = new window.Peer(PEER_OPTS); } catch (e) { netReset(); return netUnavailable(); }
   peer.on("error", peerErr);
   peer.on("open", () => {
-    const c = NET.conn = peer.connect(PID(code), { serialization: "json", reliable: true });
+    const c = NET.conn = peer.connect(PID(code), { serialization: "json", reliable: false });
     c.on("open", () => netStatus("Collegato. Aspetto che parta la partita…", "ok"));
     c.on("data", onGuestData);
     c.on("close", () => { if (NET.conn === c) netLost("L'host ha chiuso la stanza."); });
@@ -1055,23 +1065,18 @@ function onGuestData(d) {
   if (!d || typeof d !== "object") return;
   if (d.t === "full") { netReset(); netStatus("La stanza è già piena.", "err"); return; }
   if (d.t === "start") {
+    if (+d.m <= NET.match && G.net === "guest") return;
     const mine = { host: ["net", "HOST"], guest: ["solo", "TU"], cpu: ["cpu", "CPU"] };
     beginPlay();
     setupMatch("roster", true, { roster: d.roster.map(r => ({ team: r.team === "blue" ? "blue" : "red", ctrl: mine[r.kind] ? mine[r.kind][0] : "cpu", label: mine[r.kind] ? mine[r.kind][1] : "CPU" })), dur: +d.cfg.dur || 0, goals: +d.cfg.goals || 0 });
-    G.net = "guest"; NET.snapAt = performance.now();
+    G.net = "guest"; NET.match = +d.m; NET.lastN = 0; NET.seq = 0; NET.hist = [];
+    NET.me = d.roster.findIndex(r => r.kind === "guest");
+    for (const m of players.concat(ball)) { m.ex = 0; m.ez = 0; }
     show(null);
     return;
   }
-  if (d.t === "s" && G.net === "guest") {
-    const set = (m, a) => { m.px = m.mesh.position.x; m.pz = m.mesh.position.z; m.x = +a[0]; m.z = +a[1]; m.vx = +a[2]; m.vz = +a[3]; };
-    set(ball, d.b);
-    (d.p || []).forEach((a, i) => { const p = players[i]; if (!p) return; set(p, a); p.kicking = !!a[4]; });
-    NET.snapAt = performance.now();
-    G.score.red = d.sc[0] | 0; G.score.blue = d.sc[1] | 0; G.time = +d.tm || 0; G.golden = !!d.gg;
-    updateHud();
-    const wasOver = G.phase === "over";
-    G.phase = d.ph;
-    if (wasOver && d.ph !== "over") show(null);
+  if (d.t === "s" && G.net === "guest" && +d.m === NET.match) {
+    // gli eventi arrivano sempre, anche se lo stato è vecchio (il canale non è ordinato)
     for (const [type, v] of (d.ev || [])) {
       if (type === "k") { if (players[v]) players[v].flash = 1; sfx.kick(1); }
       else if (type === "p") sfx.post();
@@ -1079,17 +1084,58 @@ function onGuestData(d) {
       else if (type === "gg") showBanner("Golden goal", "Chi segna vince", "#ffd23f");
       else if (type === "o") { G.phase = "over"; overScreen(); }
     }
+    if (+d.n <= NET.lastN) return;
+    NET.lastN = +d.n;
+    const me = players[NET.me];
+    const apply = (m, a) => {
+      const sx = m.x + (m.ex || 0), sz = m.z + (m.ez || 0);
+      m.x = +a[0]; m.z = +a[1]; m.vx = +a[2]; m.vz = +a[3];
+      if (m === me) {
+        // riconciliazione: riparti dallo stato dell'host e riapplica i comandi che non ha ancora visto
+        NET.hist = NET.hist.filter(h => h.s > +d.a);
+        G.kickoff = d.ko || null;
+        for (const h of NET.hist) predictMove(m, h);
+      }
+      m.ex = sx - m.x; m.ez = sz - m.z; m.px = m.x; m.pz = m.z;
+      if (Math.hypot(m.ex, m.ez) > 80) { m.ex = 0; m.ez = 0; }   // teletrasporto (calcio d'inizio)
+    };
+    apply(ball, d.b);
+    (d.p || []).forEach((a, i) => { const p = players[i]; if (!p) return; apply(p, a); if (p !== me) p.kicking = !!a[4]; });
+    G.kickoff = d.ko || null;
+    G.score.red = d.sc[0] | 0; G.score.blue = d.sc[1] | 0; G.time = +d.tm || 0; G.golden = !!d.gg;
+    updateHud();
+    const wasOver = G.phase === "over";
+    if (G.phase !== "over" || d.ph !== "over") G.phase = d.ph;
+    if (wasOver && d.ph !== "over") show(null);
   }
 }
+function predictMove(p, h) {
+  let ix = h.x, iz = h.z; const l = Math.hypot(ix, iz); if (l > 1) { ix /= l; iz /= l; }
+  const acc = h.k ? P_ACC_K : P_ACC;
+  p.vx += ix * acc; p.vz += iz * acc;
+  p.x += p.vx; p.z += p.vz;
+  playerBounds(p);
+  p.vx *= P_DAMP; p.vz *= P_DAMP;
+}
 function guestTick() {
-  for (const m of players.concat(ball)) roll(m);
-  for (const p of players) p.flash *= 0.88;
-  const me = { ctrl: "solo" }, inp = G.phase === "over" || !$("menu").hidden ? { x: 0, z: 0, kick: false } : humanInput(me);
-  const key = r2(inp.x) + "," + r2(inp.z) + "," + (inp.kick ? 1 : 0), now = performance.now();
-  if (NET.conn && NET.conn.open && (key !== NET.lastIn || now - NET.lastInAt > 100)) {
-    NET.lastIn = key; NET.lastInAt = now;
-    try { NET.conn.send({ t: "i", x: r2(inp.x), z: r2(inp.z), k: inp.kick ? 1 : 0 }); } catch (e) {}
+  const me = players[NET.me];
+  const idle = G.phase === "over" || !$("menu").hidden;
+  const inp = idle ? { x: 0, z: 0, kick: false } : humanInput({ ctrl: "solo" });
+  const h = { s: ++NET.seq, x: r2(inp.x), z: r2(inp.z), k: inp.kick ? 1 : 0 };
+  NET.hist.push(h); if (NET.hist.length > 300) NET.hist.shift();
+  if (NET.conn && NET.conn.open) { try { NET.conn.send({ t: "i", m: NET.match, s: h.s, x: h.x, z: h.z, k: h.k }); } catch (e) {} }
+  for (const m of players.concat(ball)) {
+    m.px = m.x; m.pz = m.z;
+    if (m === me && !idle) { predictMove(m, h); m.kicking = !!h.k; }
+    else {
+      // tra due aggiornamenti dell'host: prosegui con la velocità nota
+      m.x += m.vx; m.z += m.vz;
+      const d = m === ball ? B_DAMP : P_DAMP; m.vx *= d; m.vz *= d;
+    }
+    m.ex = (m.ex || 0) * 0.82; m.ez = (m.ez || 0) * 0.82;   // la correzione si assorbe in pochi fotogrammi
+    roll(m);
   }
+  for (const p of players) p.flash *= 0.88;
 }
 $("host").addEventListener("click", hostRoom);
 $("join").addEventListener("click", joinRoom);
@@ -1122,9 +1168,10 @@ addEventListener("resize", () => { fitCamera(); placeStickHome(); });
 /* ---------- Loop ---------- */
 function render(a) {
   const lerp = (p, c) => p + (c - p) * a;
-  ball.mesh.position.set(lerp(ball.px, ball.x), BR, lerp(ball.pz, ball.z));
+  const ox = m => G.net === "guest" ? (m.ex || 0) : 0, oz = m => G.net === "guest" ? (m.ez || 0) : 0;
+  ball.mesh.position.set(lerp(ball.px, ball.x) + ox(ball), BR, lerp(ball.pz, ball.z) + oz(ball));
   for (const p of players) {
-    const x = lerp(p.px, p.x), z = lerp(p.pz, p.z);
+    const x = lerp(p.px, p.x) + ox(p), z = lerp(p.pz, p.z) + oz(p);
     p.mesh.position.set(x, PR, z);
     p.ring.position.set(x, 0.6, z);
     p.ring.material.opacity = p.kicking ? 0.95 : 0.28;
@@ -1149,7 +1196,7 @@ function frame(t) {
   acc += Math.min(0.1, (t - last) / 1000); last = t;
   if (G.net === "guest") {
     while (acc >= DT) { guestTick(); acc -= DT; }
-    render(Math.min(1, (performance.now() - NET.snapAt) / (2000 / 60)));
+    render(acc / DT);
     return;
   }
   if (G.phase !== "paused") { while (acc >= DT) { step(); acc -= DT; } } else acc = 0;
