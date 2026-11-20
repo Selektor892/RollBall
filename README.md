@@ -13,8 +13,19 @@ Calcio 3D a sfere con visuale dall'alto, nel browser. Giocatori e palla sono sfe
 - **Durata**: 2, 3 o 5 minuti, oppure senza limite. Pareggio a fine tempo: golden goal.
 - **Gol per vincere**: libero, 3, 5, 7 o 10.
 - **CPU**: facile, normale o difficile.
-- **Taglio del prato**: strisce, orizzontali, scacchi, diagonali, rombi o cerchi. Il campo cambia subito, anche dietro al menu.
 - **Visuale**: inclinata (3D) o dall'alto. In partita si cambia con V o con il tasto 3D sul telefono.
+
+## Personalizza
+Dal tasto **Personalizza** nel menu, con anteprima dal vivo:
+- **Nametag**: il tuo nome (fino a 10 caratteri) e il colore dell'etichetta.
+- **Texture della tua sfera**: classica, liscia, linee fitte, incrociate, spirale, pois, scacchi, zig-zag (sempre nel colore della tua squadra).
+- **Pallone**: classico, a triadi in stile anni '70, cuoio retrò marrone, invernale arancione.
+- **Taglio del prato**: strisce, orizzontali, scacchi, diagonali, rombi o cerchi.
+
+Online l'avversario vede il tuo nome e la tua sfera; pallone e prato valgono solo sul tuo schermo.
+
+## Stadio
+L'erba c'è solo dentro le linee; attorno al campo ci sono una fascia grigia, i cartelloni, quattro torri faro e le tribune piene di tifosi a forma di sfera, che saltano quando la loro squadra segna.
 
 ## Comandi
 | | Muovi | Tiro | Cross |
