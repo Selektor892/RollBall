@@ -158,17 +158,17 @@ button:focus-visible { outline: 2px solid var(--card); outline-offset: 2px; }
 #foot { position: fixed; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; color: var(--muted); font-size: 12px; z-index: 4; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
 #loadErr { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; z-index: 20; background: var(--bg); }
 #touch { position: fixed; inset: 0; z-index: 3; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-#stick { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 2px solid rgba(238,244,236,.35); background: rgba(8,20,15,.25); pointer-events: none; opacity: .55; transition: opacity .15s; }
-#stick.on { opacity: 1; }
-#knob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(238,244,236,.75); box-shadow: 0 4px 12px rgba(0,0,0,.35); }
+#stick { position: absolute; left: calc(20px + env(safe-area-inset-left, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 104px; height: 104px; border-radius: 50%; border: 2px solid rgba(238,244,236,.35); background: rgba(8,20,15,.2); pointer-events: none; opacity: .45; transition: opacity .15s; }
+#stick.on { opacity: .9; }
+#knob { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(238,244,236,.75); box-shadow: 0 4px 12px rgba(0,0,0,.35); }
 .pad { position: absolute; border-radius: 50%; display: grid; place-items: center; background: rgba(8,20,15,.3); color: var(--chalk); font: 700 15px var(--display); letter-spacing: .1em; pointer-events: none; transition: transform .08s, background .08s; }
 .pad svg { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); transform: rotate(-90deg); overflow: visible; }
 .pad .trk { fill: none; stroke: rgba(238,244,236,.5); stroke-width: 3; }
 .pad .bar { fill: none; stroke-width: 7; stroke-linecap: round; }
 .pad span { position: relative; }
-#kickPad { right: calc(28px + env(safe-area-inset-right, 0px)); bottom: calc(28px + env(safe-area-inset-bottom, 0px)); width: 104px; height: 104px; }
+#kickPad { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 88px; height: 88px; opacity: .8; }
 #kickPad .bar { stroke: var(--card); }
-#crossPad { right: calc(150px + env(safe-area-inset-right, 0px)); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); width: 80px; height: 80px; font-size: 13px; }
+#crossPad { right: calc(122px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); width: 68px; height: 68px; font-size: 12px; opacity: .8; }
 #crossPad .bar { stroke: var(--sky); }
 #kickPad.on { background: rgba(255,210,63,.3); transform: scale(.94); }
 #crossPad.on { background: rgba(95,225,255,.28); transform: scale(.94); }
@@ -1116,6 +1116,7 @@ function show(id) {
   for (const o of ["menu", "pause", "over", "custom"]) $(o).hidden = o !== id;
   $("foot").hidden = id === "menu" || id === "custom";
   const t = isTouch && id === null && G.live;
+  fitCamera();
   $("touch").hidden = !t; $("touchSide").hidden = !t;
   if (!t) releaseTouch();
 }
@@ -1285,11 +1286,10 @@ try { isTouch = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoi
 function markTouch() { if (!isTouch) { isTouch = true; document.body.classList.add("touchdev"); } }
 if (isTouch) document.body.classList.add("touchdev");
 addEventListener("touchstart", markTouch, { passive: true });
-const STICK_R = 52;
+const STICK_R = 44;
 const stickEl = $("stick"), knobEl = $("knob"), kickEl = $("kickPad"), crossEl = $("crossPad");
+// il joystick resta fisso nell'angolo in basso a sinistra; si comanda toccando ovunque nella metà sinistra
 function placeStickHome() {
-  stickEl.style.left = (Math.max(90, innerWidth * 0.14)) + "px";
-  stickEl.style.top = (innerHeight - Math.max(90, innerHeight * 0.22)) + "px";
   knobEl.style.transform = "";
 }
 function releaseTouch() {
@@ -1300,8 +1300,9 @@ const tl = $("touch");
 tl.addEventListener("pointerdown", e => {
   e.preventDefault(); sfx.init();
   if (e.clientX < innerWidth / 2 && touch.stickId === null) {
-    touch.stickId = e.pointerId; touch.ox = e.clientX; touch.oy = e.clientY;
-    stickEl.style.left = e.clientX + "px"; stickEl.style.top = e.clientY + "px"; stickEl.classList.add("on");
+    const r = stickEl.getBoundingClientRect();
+    touch.stickId = e.pointerId; touch.ox = r.left + r.width / 2; touch.oy = r.top + r.height / 2;
+    stickEl.classList.add("on"); stickMove(e);
   } else {
     // pollice destro: vale il tasto più vicino al punto toccato
     const dist = el => { const r = el.getBoundingClientRect(); return Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) / r.width; };
@@ -1310,21 +1311,16 @@ tl.addEventListener("pointerdown", e => {
   }
   try { tl.setPointerCapture(e.pointerId); } catch (err) {}
 });
-tl.addEventListener("pointermove", e => {
-  if (e.pointerId !== touch.stickId) return;
+tl.addEventListener("pointermove", e => { if (e.pointerId === touch.stickId) stickMove(e); });
+function stickMove(e) {
   let dx = e.clientX - touch.ox, dy = e.clientY - touch.oy;
   const l = Math.hypot(dx, dy);
-  if (l > STICK_R) {
-    // il joystick segue il pollice se esce dal cerchio
-    touch.ox += dx * (1 - STICK_R / l); touch.oy += dy * (1 - STICK_R / l);
-    stickEl.style.left = touch.ox + "px"; stickEl.style.top = touch.oy + "px";
-    dx = e.clientX - touch.ox; dy = e.clientY - touch.oy;
-  }
+  if (l > STICK_R) { dx *= STICK_R / l; dy *= STICK_R / l; }   // il pomello resta dentro il cerchio
   knobEl.style.transform = "translate(" + dx + "px," + dy + "px)";
   const m = Math.hypot(dx, dy) / STICK_R;
   const dead = 0.15, k = m < dead ? 0 : Math.min(1, (m - dead) / (0.75 - dead)) / (m || 1);
   touch.x = dx / STICK_R * k; touch.z = dy / STICK_R * k;
-});
+}
 function touchEnd(e) {
   if (e.pointerId === touch.stickId) { touch.stickId = null; touch.x = touch.z = 0; stickEl.classList.remove("on"); placeStickHome(); }
   if (touch.pads.delete(e.pointerId)) syncPads();
@@ -1570,9 +1566,10 @@ function fitCamera() {
   const needW = (W + GD + 30), needH = (H + 40);
   const elev = G.view ? 89.5 : 56;
   const fore = Math.sin(THREE.MathUtils.degToRad(elev));
-  const d = Math.max(needH * fore / t, needW / (t * camera.aspect)) * 1.06;
+  const tc = typeof isTouch !== "undefined" && isTouch && G.live && $("menu").hidden ? 1 : 0;   // su telefono lascia spazio ai comandi in basso
+  const d = Math.max(needH * fore / t, needW / (t * camera.aspect)) * (1.06 + 0.16 * tc);
   const er = THREE.MathUtils.degToRad(elev);
-  camTarget.set(0, 0, G.view ? 0 : 10);
+  camTarget.set(0, 0, (G.view ? 0 : 10) + 40 * tc);
   camera.position.set(0, d * Math.sin(er), camTarget.z + d * Math.cos(er));
   camera.lookAt(camTarget);
   camera.updateProjectionMatrix();

@@ -32,7 +32,7 @@ L'erba c'è solo dentro le linee; attorno al campo ci sono una fascia grigia, i 
 |---|---|---|---|
 | Giocatore 1 (Rossi) | W A S D | Spazio | C (o Shift sinistro) |
 | Giocatore 2 (Blu) | Frecce | Invio | Shift destro (o punto) |
-| Touch (telefono in orizzontale) | pollice sinistro, trascina | tasto TIRA | tasto CROSS |
+| Touch (telefono in orizzontale) | joystick fisso in basso a sinistra (tocca e trascina ovunque nella metà sinistra) | tasto TIRA | tasto CROSS |
 
 Online e in allenamento puoi usare sia WASD che le frecce. Esc o P: pausa (online il gioco non si ferma) · V: visuale · M: audio.
 
