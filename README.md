@@ -17,9 +17,9 @@ Calcio 3D a sfere con visuale dall'alto, nel browser. Giocatori e palla sono sfe
 
 ## Personalizza
 Dal tasto **Personalizza** nel menu, con anteprima dal vivo:
-- **Nametag**: il tuo nome (fino a 10 caratteri) e il colore dell'etichetta.
-- **Texture della tua sfera**: classica, liscia, linee fitte, incrociate, spirale, pois, scacchi, zig-zag (sempre nel colore della tua squadra).
-- **Pallone**: classico, a triadi in stile anni '70, cuoio retrò marrone, invernale arancione.
+- **Nametag**: il tuo nome (fino a 10 caratteri), su un'etichetta nel colore della squadra.
+- **Texture della tua sfera**: classica (guscio laccato con fascia in gomma), metallizzata, scanalata, tessuto, feltro, fossette, trapuntata, nido d'ape. Sono materiali veri con rilievo, ruvidezza e riflessi, sempre nel colore della tua squadra.
+- **Pallone**: classico a 32 pannelli cuciti, a triadi in stile anni '70, cuoio retrò a 18 pannelli con allacciatura, invernale arancione goffrato.
 - **Taglio del prato**: strisce, orizzontali, scacchi, diagonali, rombi o cerchi.
 
 Online l'avversario vede il tuo nome e la tua sfera; pallone e prato valgono solo sul tuo schermo.

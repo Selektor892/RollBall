@@ -81,29 +81,11 @@ body { margin: 0; overflow: hidden; background: var(--bg); color: var(--chalk); 
 .copts { display: grid; gap: 14px; min-width: 0; }
 #pname { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--chalk); font: 700 20px var(--display); letter-spacing: .06em; }
 #pname:focus-visible { outline: 2px solid var(--card); outline-offset: 1px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips button { width: 36px; height: 36px; border-radius: 50%; padding: 0; border: 2px solid transparent; background: transparent; cursor: pointer; display: grid; place-items: center; }
-.chips button[aria-pressed="true"] { border-color: var(--card); }
-.tg { width: 26px; height: 26px; border-radius: 50%; display: block; border: 1px solid rgba(255,255,255,.3); }
-.tg-team { background: linear-gradient(135deg, #7a1d1a 50%, #163a78 50%); } .tg-gold { background: #b58a12; } .tg-black { background: #101412; } .tg-white { background: #f4f4ef; }
-.tg-pink { background: #d6337f; } .tg-violet { background: #6b46c1; } .tg-green { background: #14804a; } .tg-sky { background: #1d8fd1; }
 .seg.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); }
 .seg.grid4 button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 9px 4px; font-size: 12.5px; border-left: 0; border-top: 1px solid var(--line); }
 .seg.grid4 button:nth-child(-n+4) { border-top: 0; }
 .seg.grid4 button:not(:nth-child(4n+1)) { border-left: 1px solid var(--line); }
-.ps, .bs { width: 26px; height: 26px; border-radius: 50%; display: block; box-shadow: inset -4px -5px 0 rgba(0,0,0,.25); }
-.ps { --t: #ef4b45; --w: rgba(255,255,255,.9); background-color: var(--t); }
-.ps-classic { background: linear-gradient(transparent 44%, var(--w) 44% 56%, transparent 56%), linear-gradient(90deg, transparent 30%, rgba(0,0,0,.25) 30% 38%, transparent 38%), var(--t); }
-.ps-lines { background: repeating-linear-gradient(0deg, var(--t) 0 3px, var(--w) 3px 5px); }
-.ps-cross { background: repeating-linear-gradient(0deg, transparent 0 5px, var(--w) 5px 6px), repeating-linear-gradient(90deg, var(--t) 0 5px, var(--w) 5px 6px); }
-.ps-spiral { background: repeating-linear-gradient(35deg, var(--t) 0 5px, var(--w) 5px 8px); }
-.ps-dots { background: radial-gradient(var(--w) 25%, transparent 28%) 0 0 / 9px 9px, var(--t); }
-.ps-checks { background: conic-gradient(var(--t) 25%, #b9322e 0 50%, var(--t) 0 75%, #b9322e 0) 0 0 / 10px 10px; }
-.ps-zigzag { background: linear-gradient(135deg, var(--t) 33%, var(--w) 33% 45%, var(--t) 45%) 0 0 / 8px 26px, var(--t); }
-.bs-classic { background: radial-gradient(#1c2421 22%, transparent 24%) 0 0 / 13px 13px, #f5f5f0; }
-.bs-triad { background: radial-gradient(circle, transparent 28%, #15191a 30% 38%, transparent 40%) 0 0 / 13px 13px, #f6f5ef; }
-.bs-leather { background: linear-gradient(transparent 32%, #3a1f0a 32% 36%, transparent 36% 64%, #3a1f0a 64% 68%, transparent 68%), linear-gradient(#9a6234, #6e4220); }
-.bs-winter { background: radial-gradient(#1b2a4a 22%, transparent 24%) 0 0 / 13px 13px, #ff7a1a; }
+.sw3d { width: 32px; height: 32px; display: block; }
 @media (max-width: 520px) { .cgrid { grid-template-columns: 1fr; } .seg.grid4 button { font-size: 11px; } }
 #target { margin-top: 6px; text-align: center; font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--chalk); text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 #banner { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 6; }
@@ -341,36 +323,25 @@ body.touchdev .keyOnly { display: none; }
       <div class="copts">
         <div><label class="lbl" for="pname">Nome sul nametag</label>
           <input id="pname" maxlength="10" placeholder="TU" autocomplete="off" spellcheck="false"></div>
-        <div><div class="lbl">Colore del nametag</div>
-          <div class="chips" id="tag">
-        <button data-v="team" aria-pressed="false" aria-label="Colore squadra" title="Colore squadra"><i class="tg tg-team"></i></button>
-        <button data-v="gold" aria-pressed="false" aria-label="Oro" title="Oro"><i class="tg tg-gold"></i></button>
-        <button data-v="black" aria-pressed="false" aria-label="Nero" title="Nero"><i class="tg tg-black"></i></button>
-        <button data-v="white" aria-pressed="false" aria-label="Bianco" title="Bianco"><i class="tg tg-white"></i></button>
-        <button data-v="pink" aria-pressed="false" aria-label="Rosa" title="Rosa"><i class="tg tg-pink"></i></button>
-        <button data-v="violet" aria-pressed="false" aria-label="Viola" title="Viola"><i class="tg tg-violet"></i></button>
-        <button data-v="green" aria-pressed="false" aria-label="Verde" title="Verde"><i class="tg tg-green"></i></button>
-        <button data-v="sky" aria-pressed="false" aria-label="Azzurro" title="Azzurro"><i class="tg tg-sky"></i></button>
-          </div></div>
       </div>
     </div>
     <div><div class="lbl">Texture della tua sfera</div>
       <div class="seg grid4" id="skin">
-        <button data-v="classic" aria-pressed="false"><i class="ps ps-classic"></i>Classica</button>
-        <button data-v="plain" aria-pressed="false"><i class="ps ps-plain"></i>Liscia</button>
-        <button data-v="lines" aria-pressed="false"><i class="ps ps-lines"></i>Linee fitte</button>
-        <button data-v="cross" aria-pressed="false"><i class="ps ps-cross"></i>Incrociate</button>
-        <button data-v="spiral" aria-pressed="false"><i class="ps ps-spiral"></i>Spirale</button>
-        <button data-v="dots" aria-pressed="false"><i class="ps ps-dots"></i>Pois</button>
-        <button data-v="checks" aria-pressed="false"><i class="ps ps-checks"></i>Scacchi</button>
-        <button data-v="zigzag" aria-pressed="false"><i class="ps ps-zigzag"></i>Zig-zag</button>
+        <button data-v="classic" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="classic"></canvas>Classica</button>
+        <button data-v="plain" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="plain"></canvas>Metallizzata</button>
+        <button data-v="lines" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="lines"></canvas>Scanalata</button>
+        <button data-v="cross" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="cross"></canvas>Tessuto</button>
+        <button data-v="spiral" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="spiral"></canvas>Feltro</button>
+        <button data-v="dots" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="dots"></canvas>Fossette</button>
+        <button data-v="checks" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="checks"></canvas>Trapuntata</button>
+        <button data-v="zigzag" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="zigzag"></canvas>Nido d'ape</button>
       </div></div>
     <div><div class="lbl">Pallone</div>
       <div class="seg grid4" id="ballst">
-        <button data-v="classic" aria-pressed="false"><i class="bs bs-classic"></i>Classico</button>
-        <button data-v="triad" aria-pressed="false"><i class="bs bs-triad"></i>Triadi anni '70</button>
-        <button data-v="leather" aria-pressed="false"><i class="bs bs-leather"></i>Cuoio retrò</button>
-        <button data-v="winter" aria-pressed="false"><i class="bs bs-winter"></i>Invernale</button>
+        <button data-v="classic" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="classic"></canvas>Classico 32 pannelli</button>
+        <button data-v="triad" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="triad"></canvas>Triadi anni '70</button>
+        <button data-v="leather" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="leather"></canvas>Cuoio retrò</button>
+        <button data-v="winter" aria-pressed="false"><canvas class="sw3d" width="64" height="64" data-s="winter"></canvas>Invernale</button>
       </div></div>
     <div>
       <div class="lbl">Taglio del prato</div>
@@ -435,7 +406,7 @@ const DIFF = {
 };
 
 /* ---------- Opzioni dal menu (ricordate nel browser se possibile) ---------- */
-const opts = { mode: "solo", diff: "normal", dur: 180, goals: 0, view: 0, tab: "local", netfmt: 1, mow: "stripes", name: "", tag: "team", skin: "classic", ball: "classic" };
+const opts = { mode: "solo", diff: "normal", dur: 180, goals: 0, view: 0, tab: "local", netfmt: 1, mow: "stripes", name: "", skin: "classic", ball: "classic" };
 try { Object.assign(opts, JSON.parse(localStorage.getItem("rollball-opts") || "{}")); } catch (e) {}
 function saveOpts() { try { localStorage.setItem("rollball-opts", JSON.stringify(opts)); } catch (e) {} }
 
@@ -652,90 +623,379 @@ const nets = {};
   }
 })();
 
-/* ---------- Texture per sfere ---------- */
-/* Disegna su una mappa equirettangolare (512x256) una forma centrata in un punto della sfera,
-   allargandola in orizzontale verso i poli e ripetendola oltre il bordo per non avere tagli. */
+/* ---------- Materiali delle sfere ---------- */
+/* Ogni stile è una funzione che, per una direzione sulla sfera (vettore unitario), restituisce colore,
+   rilievo (cuciture, pannelli, trame) e ruvidezza. Le mappe vengono calcolate texel per texel nello spazio 3D
+   e scritte sulla UV di THREE.SphereGeometry: niente tagli sulla giunzione e niente motivi stirati ai poli. */
+const TEXW = matchMedia("(pointer: coarse)").matches ? 512 : 1024;
 const PHI = (1 + Math.sqrt(5)) / 2;
+const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const fract = x => x - Math.floor(x);
+function hash3(x, y, z) {
+  let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263) ^ Math.imul(z | 0, 1274126177);
+  h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+function vnoise(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  let u = x - xi, v = y - yi, w = z - zi;
+  u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v); w = w * w * (3 - 2 * w);
+  const a = hash3(xi, yi, zi), b = hash3(xi + 1, yi, zi), c = hash3(xi, yi + 1, zi), d = hash3(xi + 1, yi + 1, zi);
+  const e = hash3(xi, yi, zi + 1), f = hash3(xi + 1, yi, zi + 1), g = hash3(xi, yi + 1, zi + 1), h = hash3(xi + 1, yi + 1, zi + 1);
+  const k0 = a + (b - a) * u, k1 = c + (d - c) * u, k2 = e + (f - e) * u, k3 = g + (h - g) * u;
+  const l0 = k0 + (k1 - k0) * v, l1 = k2 + (k3 - k2) * v;
+  return l0 + (l1 - l0) * w;
+}
+function fbm(x, y, z, oct) { let s = 0, a = 0.5, n = 0; for (let i = 0; i < oct; i++) { s += a * vnoise(x, y, z); n += a; x *= 2.03; y *= 2.03; z *= 2.03; a *= 0.5; } return s / n; }
+
+/* Insiemi di punti sulla sfera e ricerca della cella di Voronoi (pannelli, alveoli, fossette) */
+function unit(v) { const l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; }
+function fibPoints(n) { const P = []; for (let i = 0; i < n; i++) { const y = 1 - 2 * (i + 0.5) / n, r = Math.sqrt(1 - y * y), a = i * Math.PI * (3 - Math.sqrt(5)); P.push([Math.cos(a) * r, y, Math.sin(a) * r]); } return P; }
+const NT = 24, NP = 48;
+function cellOf(x, y, z) { const t = Math.min(NT - 1, Math.floor(Math.acos(Math.max(-1, Math.min(1, y))) / Math.PI * NT)); const p = Math.floor((Math.atan2(z, x) / (2 * Math.PI) + 0.5) * NP) % NP; return t * NP + p; }
+function pointSet(P, reach, wt) {
+  const flat = new Float64Array(P.length * 3); P.forEach((p, i) => { flat[i * 3] = p[0]; flat[i * 3 + 1] = p[1]; flat[i * 3 + 2] = p[2]; });
+  const lists = [];
+  for (let t = 0; t < NT; t++) for (let p = 0; p < NP; p++) {
+    const th = (t + 0.5) / NT * Math.PI, ph = ((p + 0.5) / NP - 0.5) * 2 * Math.PI;
+    const c = [Math.sin(th) * Math.cos(ph), Math.cos(th), Math.sin(th) * Math.sin(ph)];
+    const rc = 0.75 * Math.hypot(Math.PI / NT, 2 * Math.PI / NP * Math.min(1, Math.sin(th) + Math.PI / NT)) + reach;
+    const cos = Math.cos(Math.min(Math.PI, rc)), L = [];
+    P.forEach((q, i) => { if (q[0] * c[0] + q[1] * c[1] + q[2] * c[2] >= cos) L.push(i); });
+    lists.push(L);
+  }
+  return { P: flat, lists, n: P.length, w: wt || null };
+}
+const VR = { i: 0, j: 0, dot: 0, e: 1, s: 0 };
+// cella più vicina (i), distanza angolare approssimata dal bordo (e), vicino oltre il bordo (j), coordinata lungo il bordo (s)
+function voronoi(S, x, y, z, needEdge) {
+  const L = S.lists[cellOf(x, y, z)], P = S.P;
+  let bi = L[0], bd = -2;
+  for (let k = 0; k < L.length; k++) { const q = L[k] * 3, d = P[q] * x + P[q + 1] * y + P[q + 2] * z; if (d > bd) { bd = d; bi = L[k]; } }
+  if (S.w) return weighted(S, L, x, y, z);
+  VR.i = bi; VR.dot = bd;
+  if (!needEdge) return VR;
+  const a = bi * 3, ax = P[a], ay = P[a + 1], az = P[a + 2];
+  let e = 9, bj = bi;
+  for (let k = 0; k < L.length; k++) {
+    const j = L[k]; if (j === bi) continue;
+    const q = j * 3, dx = ax - P[q], dy = ay - P[q + 1], dz = az - P[q + 2];
+    const ee = (dx * x + dy * y + dz * z) / Math.hypot(dx, dy, dz);
+    if (ee < e) { e = ee; bj = j; }
+  }
+  const q = bj * 3, cx = ay * P[q + 2] - az * P[q + 1], cy = az * P[q] - ax * P[q + 2], cz = ax * P[q + 1] - ay * P[q];
+  VR.e = e; VR.j = bj; VR.s = (cx * x + cy * y + cz * z) / (Math.hypot(cx, cy, cz) || 1);
+  return VR;
+}
+// variante pesata: la cella è quella con angolo + peso minimo (serve per avere pentagoni ed esagoni con le misure vere)
+function weighted(S, L, x, y, z) {
+  const P = S.P, W = S.w, A = weighted.a || (weighted.a = new Float64Array(64));
+  let bi = L[0], bv = 9;
+  for (let k = 0; k < L.length; k++) { const q = L[k] * 3, v = Math.acos(Math.max(-1, Math.min(1, P[q] * x + P[q + 1] * y + P[q + 2] * z))) + W[L[k]]; A[k] = v; if (v < bv) { bv = v; bi = L[k]; } }
+  let e = 9, bj = bi;
+  for (let k = 0; k < L.length; k++) { if (L[k] === bi) continue; const ee = (A[k] - bv) / 2; if (ee < e) { e = ee; bj = L[k]; } }
+  const a = bi * 3, q = bj * 3, cx = P[a + 1] * P[q + 2] - P[a + 2] * P[q + 1], cy = P[a + 2] * P[q] - P[a] * P[q + 2], cz = P[a] * P[q + 1] - P[a + 1] * P[q];
+  VR.i = bi; VR.dot = Math.cos(bv - W[bi]); VR.e = e; VR.j = bj; VR.s = (cx * x + cy * y + cz * z) / (Math.hypot(cx, cy, cz) || 1);
+  return VR;
+}
+// pallone a 32 pannelli: 12 pentagoni (vertici dell'icosaedro) + 20 esagoni (vertici del dodecaedro)
 const ICO = [[0, 1, PHI], [0, -1, PHI], [0, 1, -PHI], [0, -1, -PHI], [1, PHI, 0], [-1, PHI, 0], [1, -PHI, 0], [-1, -PHI, 0], [PHI, 0, 1], [-PHI, 0, 1], [PHI, 0, -1], [-PHI, 0, -1]];
 const DODE = [];
 for (const a of [-1, 1]) for (const b of [-1, 1]) for (const c of [-1, 1]) DODE.push([a, b, c]);
 for (const a of [-1, 1]) for (const b of [-1, 1]) DODE.push([0, a / PHI, b * PHI], [a / PHI, b * PHI, 0], [a * PHI, 0, b / PHI]);
-function onSphere(g, [x, y, z], draw) {
-  const l = Math.hypot(x, y, z), lat = Math.asin(y / l), lon = Math.atan2(z, x);
-  const u = (lon / (2 * Math.PI) + 0.5) * 512, v = (0.5 - lat / Math.PI) * 256;
-  const k = 1 / Math.max(Math.cos(lat), 0.14);
-  for (const off of [-512, 0, 512]) { g.save(); g.translate(u + off, v); g.scale(Math.min(k, 9), 1); draw(g); g.restore(); }
+const TRUNC = pointSet([...ICO, ...DODE].map(unit), 0.95, [...ICO.map(() => 0.0387), ...DODE.map(() => -0.0387)]);
+const lazy = f => { let v; return () => v || (v = f()); };
+const GOLF = lazy(() => pointSet(fibPoints(380), 0.42));
+const HONEY = lazy(() => pointSet(fibPoints(300), 0.48));
+// cucitura curva da pallina da tennis: con a + b = 1 la curva sta esattamente sulla sfera unitaria
+const SEAM = lazy(() => { const P = [], a = 0.68, b = 0.32, k = 2 * Math.sqrt(a * b); for (let i = 0; i < 720; i++) { const t = i / 720 * 2 * Math.PI; P.push([a * Math.cos(t) + b * Math.cos(3 * t), k * Math.sin(2 * t), a * Math.sin(t) - b * Math.sin(3 * t)]); } return pointSet(P, 0.12); });
+
+// cubo proiettato sulla sfera: faccia dominante e coordinate equiangolari (u, v) in [-1, 1]
+const CF = { k: 0, sg: 1, u: 0, v: 0, ad: 1 };
+function cubeFace(x, y, z) {
+  const ax = Math.abs(x), ay = Math.abs(y), az = Math.abs(z);
+  let k, m, p, q;
+  if (ax >= ay && ax >= az) { k = 0; m = x; p = y; q = z; } else if (ay >= az) { k = 1; m = y; p = z; q = x; } else { k = 2; m = z; p = x; q = y; }
+  const am = Math.abs(m);
+  CF.k = k; CF.sg = m > 0 ? 1 : 0; CF.ad = am;
+  CF.u = Math.atan(p / am) * 4 / Math.PI; CF.v = Math.atan(q / am) * 4 / Math.PI;
+  return CF;
 }
-const BALLS = ["classic", "triad", "leather", "winter"];
-function ballTexture(style) {
-  const cv = document.createElement("canvas"); cv.width = 512; cv.height = 256;
-  const g = cv.getContext("2d");
-  if (style === "triad") {
-    // bianco con cerchi e "eliche" a tre pale: stile anni '70-'80
-    g.fillStyle = "#f6f5ef"; g.fillRect(0, 0, 512, 256);
-    g.fillStyle = "#15191a"; g.strokeStyle = "#15191a";
-    for (const p of DODE) onSphere(g, p, c => {
-      for (let i = 0; i < 3; i++) {
-        c.save(); c.rotate(i * 2 * Math.PI / 3);
-        c.beginPath(); c.moveTo(0, -3); c.quadraticCurveTo(10, -16, 4, -24); c.quadraticCurveTo(-2, -16, -3, -3); c.closePath(); c.fill();
-        c.restore();
+
+const hexRGB = h => [(h >> 16) & 255, (h >> 8) & 255, h & 255];
+const mixC = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const mulC = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+function put(o, c, k, h, ro) { o.r = c[0] * k; o.g = c[1] * k; o.b = c[2] * k; o.h = h; o.ro = ro; }
+
+/* ---- Palloni ---- */
+// profilo della cucitura: solco stretto, pannello che si gonfia verso il centro
+function seamProfile(e, groove, pillow) { return ss(0, groove, e) * (0.55 + 0.45 * (1 - Math.exp(-e / pillow))); }
+// fori del punto: piccoli incavi ai due lati della cucitura, a passo regolare
+function stitchHoles(e, s, off, step) { const ph = Math.abs(fract(s / step) - 0.5); return (1 - ss(0.003, 0.0075, Math.abs(e - off))) * (1 - ss(0.12, 0.2, ph)); }
+const WHITE_PU = [238, 237, 229], INK = [24, 27, 30];
+const BALLS = {
+  classic: {
+    mat: { bumpScale: 0.22, clearcoat: 0.6, clearcoatRoughness: 0.22 },
+    fn(x, y, z, o) {
+      const R = voronoi(TRUNC, x, y, z, true), pent = R.i < 12, e = R.e;
+      const grain = vnoise(x * 190, y * 190, z * 190), wear = fbm(x * 4 + 3, y * 4, z * 4, 4);
+      let h = seamProfile(e, 0.016, 0.09) - 0.35 * stitchHoles(e, R.s, 0.026, 0.05) + (grain - 0.5) * 0.05;
+      let c = pent ? INK : WHITE_PU;
+      if (!pent) c = mixC(c, [205, 200, 186], 0.55 * (1 - ss(0, 0.035, e)) + 0.35 * ss(0.6, 0.78, wear)); // sporco nelle cuciture e strisciate
+      // bordino a rilievo stampato sui pentagoni
+      if (pent && e > 0.03 && e < 0.038) c = mixC(c, [70, 76, 80], 0.8);
+      put(o, c, 0.96 + 0.06 * grain, h, 0.32 + 0.12 * grain + 0.4 * (1 - ss(0, 0.02, e)) + 0.15 * ss(0.6, 0.8, wear));
+    }
+  },
+  triad: {
+    mat: { bumpScale: 0.2, clearcoat: 0.35, clearcoatRoughness: 0.35 },
+    fn(x, y, z, o) {
+      const R = voronoi(TRUNC, x, y, z, true), e = R.e;
+      // distanza angolare dal centro del pentagono più vicino
+      let pd = -2; for (let k = 0; k < 12; k++) { const q = k * 3, d = TRUNC.P[q] * x + TRUNC.P[q + 1] * y + TRUNC.P[q + 2] * z; if (d > pd) pd = d; }
+      const r = Math.acos(Math.min(1, pd));
+      const grain = vnoise(x * 170, y * 170, z * 170), wear = fbm(x * 5, y * 5 + 9, z * 5, 4);
+      // triangolo curvo al centro di ogni esagono (bordi concavi = archi attorno ai pentagoni) con anima chiara, e anello sottile attorno ai pentagoni
+      let ink = ss(0.497, 0.503, r) * (1 - ss(0.588, 0.594, r)) + ss(0.398, 0.403, r) * (1 - ss(0.423, 0.428, r));
+      ink *= 1 - 0.55 * ss(0.62, 0.8, wear) * (0.5 + grain); // stampa consumata
+      const base = mixC([241, 235, 214], [214, 203, 172], 0.4 * (1 - ss(0, 0.04, e)) + 0.25 * ss(0.5, 0.8, wear));
+      const c = mixC(base, [20, 22, 22], Math.min(1, ink));
+      put(o, c, 0.96 + 0.07 * grain, seamProfile(e, 0.017, 0.08) - 0.35 * stitchHoles(e, R.s, 0.027, 0.052) + (grain - 0.5) * 0.06 + ink * 0.04, 0.42 - 0.1 * ink + 0.12 * grain + 0.35 * (1 - ss(0, 0.02, e)));
+    }
+  },
+  leather: {
+    mat: { bumpScale: 0.32, clearcoat: 0.12, clearcoatRoughness: 0.5 },
+    fn(x, y, z, o) {
+      // 18 pannelli: ogni faccia del cubo è divisa in tre strisce, orientate a 90° rispetto alle facce vicine
+      const F = cubeFace(x, y, z);
+      const a = F.k % 2 ? F.v : F.u, b = F.k % 2 ? F.u : F.v;
+      const strip = a < -1 / 3 ? 0 : a > 1 / 3 ? 2 : 1;
+      const eFace = (1 - Math.max(Math.abs(F.u), Math.abs(F.v))) * Math.PI / 4;
+      const eStrip = Math.abs(Math.abs(a) - 1 / 3) * Math.PI / 4;
+      const e = Math.min(eFace, eStrip), id = F.k * 6 + F.sg * 3 + strip;
+      const tone = 0.86 + 0.24 * hash3(id, 7, 3);
+      const mott = fbm(x * 5 + id, y * 5, z * 5, 5), pores = vnoise(x * 260, y * 260, z * 260);
+      const crease = Math.abs(vnoise(x * 28, y * 28 + 4, z * 28) * 2 - 1), scuff = fbm(x * 9 + 11, y * 9, z * 9, 4);
+      let c = mulC([112, 64, 30], tone * (0.8 + 0.35 * mott));
+      c = mixC(c, [52, 30, 14], 0.6 * (1 - ss(0, 0.05, e)) + 0.5 * (1 - ss(0.02, 0.07, crease)));
+      c = mixC(c, [150, 104, 66], 0.35 * ss(0.68, 0.8, scuff)); // pelle abrasa
+      let h = seamProfile(e, 0.02, 0.12) + (pores - 0.5) * 0.05 - 0.12 * (1 - ss(0.02, 0.07, crease));
+      let ro = 0.55 + 0.18 * pores + 0.2 * ss(0.68, 0.8, scuff);
+      // allacciatura sulla striscia centrale di una faccia
+      if (F.k === 1 && F.sg === 1 && strip === 1) {
+        const aa = Math.abs(a), bb = b + 0.42;
+        if (bb > 0 && bb < 0.84) {
+          if (aa < 0.016) { h = 0.05; c = [30, 17, 8]; }
+          const ph = fract(bb / 0.105) - 0.5, bar = (1 - ss(0.17, 0.24, Math.abs(ph))) * (1 - ss(0.085, 0.1, aa));
+          if (bar > 0) {
+            const lace = mulC([214, 188, 146], 0.9 + 0.15 * pores - 0.25 * ss(0.12, 0.24, Math.abs(ph)));
+            c = mixC(c, lace, bar); h = Math.max(h, 1.05 * bar + h * (1 - bar)); ro = ro * (1 - bar) + 0.5 * bar;
+          }
+          const hole = 1 - ss(0.012, 0.02, Math.hypot(aa - 0.095, ph * 0.105));
+          if (hole > 0) { c = mixC(c, [25, 14, 6], hole); h *= 1 - 0.8 * hole; }
+        }
       }
-    });
-    for (const p of ICO) onSphere(g, p, c => { c.lineWidth = 3; c.beginPath(); c.arc(0, 0, 13, 0, Math.PI * 2); c.stroke(); });
-  } else if (style === "leather") {
-    // cuoio marrone a pannelli con cuciture e allacciatura
-    const grd = g.createLinearGradient(0, 0, 0, 256); grd.addColorStop(0, "#9a6234"); grd.addColorStop(0.5, "#86522a"); grd.addColorStop(1, "#6e4220");
-    g.fillStyle = grd; g.fillRect(0, 0, 512, 256);
-    for (let i = 0; i < 9000; i++) { g.fillStyle = Math.random() < 0.5 ? "rgba(255,230,190,0.05)" : "rgba(40,20,5,0.08)"; g.fillRect(Math.random() * 512, Math.random() * 256, 2, 2); }
-    g.strokeStyle = "rgba(45,24,8,0.85)"; g.lineWidth = 3;
-    for (const v of [85, 171]) { g.beginPath(); g.moveTo(0, v); g.lineTo(512, v); g.stroke(); }
-    [[0, 85, 0], [85, 171, 64], [171, 256, 32]].forEach(([a, b, off]) => { for (let u = off; u < 512 + off; u += 128) { g.beginPath(); g.moveTo(u % 512, a); g.lineTo(u % 512, b); g.stroke(); } });
-    g.strokeStyle = "rgba(240,225,195,0.8)"; g.lineWidth = 2;
-    for (let v = 100; v < 160; v += 8) { g.beginPath(); g.moveTo(250, v); g.lineTo(262, v + 4); g.moveTo(262, v); g.lineTo(250, v + 4); g.stroke(); }
-    g.fillStyle = "rgba(30,15,5,0.25)"; for (let i = 0; i < 18; i++) { g.beginPath(); g.ellipse(Math.random() * 512, Math.random() * 256, 10 + Math.random() * 18, 3 + Math.random() * 5, Math.random() * 3, 0, Math.PI * 2); g.fill(); }
-  } else {
-    // classico (bianco/nero) o invernale (arancio/blu notte)
-    const winter = style === "winter";
-    g.fillStyle = winter ? "#ff7a1a" : "#f5f5f0"; g.fillRect(0, 0, 512, 256);
-    g.fillStyle = winter ? "#1b2a4a" : "#1c2421";
-    for (const p of ICO) onSphere(g, p, c => { c.beginPath(); c.arc(0, 0, 26, 0, Math.PI * 2); c.fill(); });
-    if (winter) { g.strokeStyle = "rgba(255,255,255,0.7)"; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 128); g.lineTo(512, 128); g.stroke(); }
+      put(o, c, 1, h, ro);
+    }
+  },
+  winter: {
+    mat: { bumpScale: 0.2, clearcoat: 0.8, clearcoatRoughness: 0.15 },
+    fn(x, y, z, o) {
+      const R = voronoi(TRUNC, x, y, z, true), pent = R.i < 12, e = R.e;
+      const grain = vnoise(x * 190, y * 190, z * 190);
+      // goffratura antiscivolo a micro-rombi
+      const emb = Math.abs(fract(x * 55 + y * 31) - 0.5) + Math.abs(fract(z * 55 - y * 31) - 0.5);
+      let c = pent ? [24, 38, 74] : [255, 112, 26];
+      if (pent && e > 0.026 && e < 0.036) c = [236, 240, 244];
+      if (!pent && e > 0.05 && e < 0.058) c = mixC(c, [24, 38, 74], 0.85);
+      c = mixC(c, mulC(c, 0.75), 1 - ss(0, 0.03, e));
+      put(o, c, 0.95 + 0.08 * grain, seamProfile(e, 0.016, 0.09) - 0.35 * stitchHoles(e, R.s, 0.025, 0.05) + 0.05 * ss(0.35, 0.6, emb), 0.3 + 0.1 * grain + 0.35 * (1 - ss(0, 0.02, e)));
+    }
   }
-  const t = new THREE.CanvasTexture(cv); t.anisotropy = maxAniso; return t;
-}
-const SKINS = ["classic", "plain", "lines", "cross", "spiral", "dots", "checks", "zigzag"];
-function playerTexture(hex, skin) {
-  const cv = document.createElement("canvas"); cv.width = 512; cv.height = 256;
-  const g = cv.getContext("2d");
-  g.fillStyle = "#" + hex.toString(16).padStart(6, "0"); g.fillRect(0, 0, 512, 256);
-  const ink = "rgba(255,255,255,0.9)", dark = "rgba(0,0,0,0.24)";
-  const wrap = f => { for (const off of [-512, 0, 512]) { g.save(); g.translate(off, 0); f(); g.restore(); } };
-  if (skin === "plain") {
-    g.fillStyle = "rgba(255,255,255,0.12)"; g.fillRect(0, 0, 512, 40);
-  } else if (skin === "lines") {
-    g.fillStyle = ink; for (let y = 10; y < 256; y += 18) g.fillRect(0, y, 512, 6);
-  } else if (skin === "cross") {
-    g.fillStyle = ink; for (let y = 8; y < 256; y += 26) g.fillRect(0, y, 512, 4);
-    for (let x = 0; x < 512; x += 32) g.fillRect(x, 0, 4, 256);
-  } else if (skin === "spiral") {
-    g.strokeStyle = ink; g.lineWidth = 16; g.lineCap = "butt";
-    wrap(() => { for (let k = -2; k < 3; k++) { g.beginPath(); g.moveTo(k * 256, 0); g.lineTo(k * 256 + 512, 256); g.stroke(); } });
-  } else if (skin === "dots") {
-    g.fillStyle = ink;
-    for (let r = 0, y = 20; y < 256; y += 36, r++) for (let x = (r % 2) * 24; x < 520; x += 48) { const k = 1 / Math.max(Math.sin(y / 256 * Math.PI), 0.2); g.beginPath(); g.ellipse(x, y, Math.min(9 * k, 40), 9, 0, 0, Math.PI * 2); g.fill(); }
-  } else if (skin === "checks") {
-    g.fillStyle = dark; for (let i = 0; i < 16; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2) g.fillRect(i * 32, j * 32, 32, 32);
-    g.fillStyle = "rgba(255,255,255,0.12)"; for (let i = 0; i < 16; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2 === 0) g.fillRect(i * 32, j * 32, 32, 32);
-  } else if (skin === "zigzag") {
-    g.strokeStyle = ink; g.lineWidth = 9; g.lineJoin = "miter";
-    for (const y of [70, 128, 186]) { g.beginPath(); for (let x = 0, i = 0; x <= 512; x += 32, i++) g.lineTo(x, y + (i % 2 ? 14 : -14)); g.stroke(); }
-  } else {
-    g.fillStyle = ink; g.fillRect(0, 116, 512, 24);
-    g.fillStyle = dark; g.fillRect(120, 0, 20, 256); g.fillRect(376, 0, 20, 256);
+};
+
+/* ---- Giocatori: il colore della squadra resta la base di ogni materiale ---- */
+const SKINS = {
+  classic: { // guscio laccato in due metà, giunto da una fascia in gomma rigata
+    mat: { bumpScale: 0.3, clearcoat: 1, clearcoatRoughness: 0.08, metalness: 0.05 },
+    fn(x, y, z, o, T) {
+      const ay = Math.abs(y), peel = vnoise(x * 90, y * 90, z * 90);
+      let c = T.c, h = 0.6 + (peel - 0.5) * 0.02, ro = 0.28;
+      if (ay < 0.085) {
+        const rib = 0.5 + 0.5 * Math.cos(Math.atan2(z, x) * 90);
+        c = mulC([226, 228, 222], 0.88 + 0.1 * rib); h = 0.72 + 0.12 * rib; ro = 0.62;
+      }
+      const g = Math.abs(ay - 0.085);
+      if (g < 0.01) { h -= 0.45 * (1 - g / 0.01); c = mulC(c, 0.55 + 45 * g); }
+      put(o, c, 1, h, ro);
+    }
+  },
+  plain: { // vernice metallizzata con scaglie
+    mat: { bumpScale: 0.035, metalness: 0.55, clearcoat: 1, clearcoatRoughness: 0.04 },
+    fn(x, y, z, o, T) {
+      const f = hash3(Math.floor(x * 300 + 500), Math.floor(y * 300 + 500), Math.floor(z * 300 + 500));
+      const m = fbm(x * 3, y * 3, z * 3, 3);
+      put(o, T.c, 0.82 + 0.3 * f + 0.06 * m, f, 0.3 + 0.25 * f);
+    }
+  },
+  lines: { // alluminio anodizzato con scanalature fini, cappelli lisci ai poli
+    mat: { bumpScale: 0.22, metalness: 0.8 },
+    fn(x, y, z, o, T) {
+      const lat = Math.asin(Math.max(-1, Math.min(1, y))), brush = vnoise(x * 6, lat * 420, z * 6);
+      const cap = Math.abs(lat) > 1.22;
+      let h, k;
+      if (cap) { const r = Math.PI / 2 - Math.abs(lat); h = r > 0.33 ? 0.2 : 0.75; k = 1.05; if (Math.abs(r - 0.25) < 0.012) { h = 0.3; k = 0.6; } }
+      else { const p = Math.cos(lat / 0.046 * 2 * Math.PI); h = 0.5 + 0.5 * Math.sign(p) * Math.pow(Math.abs(p), 0.35); k = 0.72 + 0.28 * h; }
+      put(o, mixC(T.c, [235, 238, 240], 0.12), k * (0.92 + 0.12 * brush), h, 0.24 + 0.16 * brush + (cap ? -0.08 : 0.12 * (1 - h)));
+    }
+  },
+  cross: { // tessuto tecnico in twill 2/2, sei pannelli cuciti
+    mat: { bumpScale: 0.2, sheen: 1, sheenRoughness: 0.45 },
+    fn(x, y, z, o, T) {
+      const F = cubeFace(x, y, z), N = 22;
+      const su = (F.u + 1) * N, sv = (F.v + 1) * N, iu = Math.floor(su), iv = Math.floor(sv);
+      const warpTop = ((iu + iv) & 3) < 2;
+      const fu = su - iu, fv = sv - iv, fib = vnoise(x * 400, y * 400, z * 400);
+      const pu = Math.sin(fu * Math.PI), pv = Math.sin(fv * Math.PI);
+      let h = warpTop ? 0.55 + 0.4 * pu * (0.6 + 0.4 * Math.sin(fv * Math.PI)) : 0.55 + 0.4 * pv * (0.6 + 0.4 * Math.sin(fu * Math.PI));
+      let c = warpTop ? T.c : T.dark, k = 0.75 + 0.3 * (warpTop ? pu : pv) + 0.08 * fib;
+      const e = (1 - Math.max(Math.abs(F.u), Math.abs(F.v))) * Math.PI / 4;
+      if (e < 0.045) { h *= ss(0, 0.03, e); k *= 0.6 + 0.4 * ss(0, 0.03, e); }
+      // cucitura a vista in filo chiaro lungo i bordi dei pannelli
+      const along = Math.abs(F.u) > Math.abs(F.v) ? F.v : F.u;
+      if (Math.abs(e - 0.035) < 0.005 && fract(along * 40) < 0.55) { c = [235, 232, 220]; k = 1; h = 0.95; }
+      put(o, c, k, h, 0.78 + 0.15 * fib);
+    }
+  },
+  spiral: { // feltro con cucitura curva in gomma
+    mat: { bumpScale: 0.18, sheen: 1, sheenRoughness: 0.6 },
+    fn(x, y, z, o, T) {
+      const S = SEAM(), L = S.lists[cellOf(x, y, z)];
+      let bd = -2; for (let k = 0; k < L.length; k++) { const q = L[k] * 3, d = S.P[q] * x + S.P[q + 1] * y + S.P[q + 2] * z; if (d > bd) bd = d; }
+      const r = L.length ? Math.acos(Math.min(1, bd)) : 1;
+      const fuzz = fbm(x * 120, y * 120, z * 120, 3), fine = vnoise(x * 420, y * 420, z * 420);
+      let c = mixC(T.c, T.light, 0.25 * fuzz), k = 0.85 + 0.25 * fine, h = 0.55 + 0.25 * fuzz + 0.1 * fine, ro = 1;
+      const w = 1 - ss(0.026, 0.034, r);
+      if (w > 0) { c = mixC(c, [236, 236, 230], w); k = k * (1 - w) + w; h = h * (1 - w) + 0.25 * w; ro = ro * (1 - w) + 0.45 * w; }
+      if (r > 0.034 && r < 0.05) h *= 0.7 + 0.3 * ss(0.034, 0.05, r);
+      put(o, c, k, h, ro);
+    }
+  },
+  dots: { // fossette come una pallina da golf, finitura lucida
+    mat: { bumpScale: 0.45, clearcoat: 1, clearcoatRoughness: 0.12 },
+    fn(x, y, z, o, T) {
+      const R = voronoi(GOLF(), x, y, z, false), r = Math.acos(Math.min(1, R.dot)), RD = 0.083;
+      const t = Math.min(1, r / RD), h = r < RD ? 0.4 + 0.6 * t * t : 1;
+      const lip = r > RD && r < RD + 0.008 ? 0.9 : 1;
+      put(o, T.c, (0.78 + 0.22 * h) * lip, h, 0.25 + 0.15 * (1 - h));
+    }
+  },
+  checks: { // pelle trapuntata a riquadri in due toni, cuciture a vista
+    mat: { bumpScale: 0.38, sheen: 0.4, sheenRoughness: 0.5 },
+    fn(x, y, z, o, T) {
+      const F = cubeFace(x, y, z);
+      const su = (F.u + 1) * 1.5, sv = (F.v + 1) * 1.5, iu = Math.min(2, Math.floor(su)), iv = Math.min(2, Math.floor(sv));
+      const fu = su - iu, fv = sv - iv;
+      const e = Math.min(fu, 1 - fu, fv, 1 - fv) * Math.PI / 6;
+      const pillow = Math.sin(fu * Math.PI) * Math.sin(fv * Math.PI), grain = vnoise(x * 230, y * 230, z * 230);
+      const odd = (iu + iv + F.k + F.sg) & 1;
+      let c = odd ? T.c : mixC(T.c, T.dark, 0.55), k = 0.8 + 0.25 * Math.sqrt(pillow) + 0.05 * grain;
+      let h = 0.15 + 0.85 * Math.sqrt(pillow) * ss(0, 0.02, e) + (grain - 0.5) * 0.04, ro = 0.5 + 0.15 * grain;
+      const along = Math.min(fu, 1 - fu) < Math.min(fv, 1 - fv) ? fv : fu;
+      if (Math.abs(e - 0.03) < 0.0045 && fract(along * 9) < 0.6) { c = [238, 230, 210]; k = 1; h += 0.12; ro = 0.7; }
+      put(o, c, k, h, ro);
+    }
+  },
+  zigzag: { // gomma a nido d'ape: celle in rilievo con bordo smussato
+    mat: { bumpScale: 0.4 },
+    fn(x, y, z, o, T) {
+      const R = voronoi(HONEY(), x, y, z, true), e = R.e;
+      const top = ss(0.01, 0.024, e), grain = vnoise(x * 260, y * 260, z * 260), tint = hash3(R.i, 3, 1);
+      const c = mixC(mulC(T.dark, 0.45), mulC(T.c, 0.9 + 0.12 * tint), top);
+      put(o, c, 0.93 + 0.1 * grain, 0.1 + 0.9 * top + (grain - 0.5) * 0.04 * top, 0.62 + 0.12 * grain + 0.2 * (1 - top));
+    }
   }
-  const t = new THREE.CanvasTexture(cv); t.anisotropy = maxAniso; return t;
+};
+const ballKey = () => Object.prototype.hasOwnProperty.call(BALLS, opts.ball) ? opts.ball : "classic";
+function teamTone(hex) { const c = hexRGB(hex); return { c, dark: mulC(c, 0.5), light: mixC(c, [255, 255, 255], 0.4) }; }
+
+// cuoce colore, rilievo e ruvidezza su tre canvas equirettangolari
+function bakeSphere(fn, T, W) {
+  const H = W / 2, cs = [0, 1, 2].map(() => { const cv = document.createElement("canvas"); cv.width = W; cv.height = H; return cv; });
+  const ids = cs.map(cv => cv.getContext("2d").createImageData(W, H)), A = ids[0].data, B = ids[1].data, C = ids[2].data;
+  const o = { r: 0, g: 0, b: 0, h: 0, ro: 0 }, cph = new Float64Array(W), sph = new Float64Array(W);
+  for (let i = 0; i < W; i++) { const ph = 2 * Math.PI * (i + 0.5) / W; cph[i] = Math.cos(ph); sph[i] = Math.sin(ph); }
+  for (let j = 0, q = 0; j < H; j++) {
+    const th = Math.PI * (j + 0.5) / H, st = Math.sin(th), y = Math.cos(th);
+    for (let i = 0; i < W; i++, q += 4) {
+      fn(-cph[i] * st, y, sph[i] * st, o, T);
+      A[q] = o.r; A[q + 1] = o.g; A[q + 2] = o.b; A[q + 3] = 255;
+      const hv = Math.max(0, Math.min(255, o.h * 255)); B[q] = B[q + 1] = B[q + 2] = hv; B[q + 3] = 255;
+      C[q] = 0; C[q + 1] = Math.max(8, Math.min(255, o.ro * 255)); C[q + 2] = 0; C[q + 3] = 255;
+    }
+  }
+  return cs.map((cv, k) => { cv.getContext("2d").putImageData(ids[k], 0, 0); const t = new THREE.CanvasTexture(cv); t.anisotropy = maxAniso; return t; });
 }
-const TAGS = { team: null, gold: ["#b58a12", "#fff"], black: ["#101412", "#fff"], white: ["#f4f4ef", "#14181a"], pink: ["#d6337f", "#fff"], violet: ["#6b46c1", "#fff"], green: ["#14804a", "#fff"], sky: ["#1d8fd1", "#fff"] };
+const mapCache = {};
+function sphereMaps(kind, style, teamHex) {
+  const key = kind + ":" + style + ":" + (teamHex || 0);
+  if (!mapCache[key]) {
+    const S = (kind === "ball" ? BALLS : SKINS)[style];
+    const [map, bump, rough] = bakeSphere(S.fn, teamHex !== undefined ? teamTone(teamHex) : null, TEXW);
+    mapCache[key] = { map, bump, rough, mat: S.mat };
+  }
+  return mapCache[key];
+}
+// riflessi: piccolo ambiente con cielo serale, prato e quattro torri faro (uno per ogni renderer)
+function makeEnv(r) {
+  const pm = new THREE.PMREMGenerator(r), s = new THREE.Scene();
+  const geo = new THREE.SphereGeometry(100, 32, 16), pos = geo.attributes.position, cols = [];
+  const top = new THREE.Color(0x3a4650), hor = new THREE.Color(0x1e2824), bot = new THREE.Color(0x0e2414), tmp = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) { const t = pos.getY(i) / 100; tmp.copy(hor).lerp(t > 0 ? top : bot, Math.pow(Math.abs(t), 0.6)); cols.push(tmp.r, tmp.g, tmp.b); }
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
+  s.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
+  const lm = new THREE.MeshBasicMaterial({ color: new THREE.Color(7, 7, 6.4), side: THREE.DoubleSide });
+  for (const [ax, az] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, 12), lm); m.position.set(ax * 55, 48, az * 40); m.lookAt(0, 0, 0); s.add(m); }
+  const sunBox = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 2.2, 2.1), side: THREE.DoubleSide }));
+  sunBox.position.set(-30, 85, 36); sunBox.lookAt(0, 0, 0); s.add(sunBox);
+  const tex = pm.fromScene(s, 0.02).texture; pm.dispose();
+  return tex;
+}
+const ENV = makeEnv(renderer);
+function sphereMaterial(kind, style, teamHex, env) {
+  const M = sphereMaps(kind, style, teamHex);
+  return new THREE.MeshPhysicalMaterial(Object.assign({ map: M.map, bumpMap: M.bump, roughnessMap: M.rough, roughness: 1, metalness: 0, envMap: env || ENV, envMapIntensity: 0.8 }, M.mat));
+}
+// icone del menu: piccola sfera ombreggiata in software, con lo stesso disegno della texture
+function swatch(cv, fn, T) {
+  const S = cv.width, g = cv.getContext("2d"), img = g.createImageData(S, S), D = img.data, o = { r: 0, g: 0, b: 0, h: 0, ro: 0 };
+  const L = unit([-0.45, 0.7, 0.55]), ct = Math.cos(0.5), st = Math.sin(0.5), eps = 0.012;
+  const toW = (nx, ny, nz) => [nx, ny * ct + nz * st, -ny * st + nz * ct];
+  const hAt = v => { fn(v[0], v[1], v[2], o, T); return o.h; };
+  for (let py = 0; py < S; py++) for (let px = 0; px < S; px++) {
+    const nx = (px + 0.5) / S * 2 - 1, ny = 1 - (py + 0.5) / S * 2, r2 = nx * nx + ny * ny, q = (py * S + px) * 4;
+    if (r2 >= 1) { D[q + 3] = 0; continue; }
+    const nz = Math.sqrt(1 - r2), w = toW(nx, ny, nz);
+    const hx = hAt(unit(toW(nx + eps, ny, nz))) - hAt(unit(toW(nx - eps, ny, nz)));
+    const hy = hAt(unit(toW(nx, ny + eps, nz))) - hAt(unit(toW(nx, ny - eps, nz)));
+    fn(w[0], w[1], w[2], o, T);
+    const n = unit([nx - hx * 1.2, ny - hy * 1.2, nz]);
+    const dif = Math.max(0, n[0] * L[0] + n[1] * L[1] + n[2] * L[2]);
+    const hz = unit([L[0], L[1], L[2] + 1]), sp = Math.pow(Math.max(0, n[0] * hz[0] + n[1] * hz[1] + n[2] * hz[2]), 8 + 80 * (1 - o.ro)) * (1 - o.ro) * 1.1;
+    const k = 0.3 + 0.85 * dif, edge = Math.min(1, (1 - Math.sqrt(r2)) * S / 1.5);
+    D[q] = o.r * k + sp * 255; D[q + 1] = o.g * k + sp * 255; D[q + 2] = o.b * k + sp * 255; D[q + 3] = 255 * edge;
+  }
+  g.putImageData(img, 0, 0);
+}
+let swatchesDone = false;
+function drawSwatches() {
+  if (swatchesDone) return; swatchesDone = true;
+  const T = teamTone(TEAMS.red.col);
+  document.querySelectorAll("#skin canvas").forEach(cv => swatch(cv, SKINS[cv.dataset.s].fn, T));
+  document.querySelectorAll("#ballst canvas").forEach(cv => swatch(cv, BALLS[cv.dataset.s].fn, null));
+}
+
+/* ---------- Nametag ---------- */
 function labelSprite(text, bg, fg) {
   const cv = document.createElement("canvas"); cv.width = 256; cv.height = 64;
   const g = cv.getContext("2d");
@@ -752,39 +1012,35 @@ function labelSprite(text, bg, fg) {
   return sp;
 }
 function cleanName(n) { return String(n || "").replace(/[^\p{L}\p{N} ._-]/gu, "").trim().slice(0, 10); }
-function myLook() { return { name: cleanName(opts.name), tag: TAGS[opts.tag] !== undefined ? opts.tag : "team", skin: SKINS.includes(opts.skin) ? opts.skin : "classic" }; }
-function safeLook(l) { l = l || {}; return { name: cleanName(l.name), tag: TAGS[l.tag] !== undefined ? l.tag : "team", skin: SKINS.includes(l.skin) ? l.skin : "classic" }; }
+function myLook() { return { name: cleanName(opts.name), skin: Object.prototype.hasOwnProperty.call(SKINS, opts.skin) ? opts.skin : "classic" }; }
+function safeLook(l) { l = l || {}; return { name: cleanName(l.name), skin: typeof l.skin === "string" && Object.prototype.hasOwnProperty.call(SKINS, l.skin) ? l.skin : "classic" }; }
 
 /* ---------- Entità ---------- */
 function disc(x, z, r, invM, e) { return { x, z, px: x, pz: z, vx: 0, vz: 0, r, invM, e }; }
 const ball = disc(0, 0, BR, 1, 0.5);
 ball.y = 0; ball.vy = 0; ball.py = 0;
-ball.mesh = new THREE.Mesh(new THREE.SphereGeometry(BR, 32, 24), new THREE.MeshStandardMaterial({ map: ballTexture(opts.ball), roughness: 0.4 }));
-function setBallStyle(st) { const old = ball.mesh.material.map; ball.mesh.material.map = ballTexture(st); ball.mesh.material.roughness = st === "leather" ? 0.75 : 0.4; ball.mesh.material.needsUpdate = true; if (old) old.dispose(); }
+ball.mesh = new THREE.Mesh(new THREE.SphereGeometry(BR, 48, 32), sphereMaterial("ball", ballKey()));
+function setBallStyle(st) { if (!Object.prototype.hasOwnProperty.call(BALLS, st)) st = "classic"; ball.mesh.material.dispose(); ball.mesh.material = sphereMaterial("ball", st); }
 ball.mesh.castShadow = true; scene.add(ball.mesh);
 const posts = [];
 for (const sd of [-1, 1]) for (const z of [-GH, GH]) posts.push(disc(sd * W, z, POSTR, 0, 0.5));
 
-const playerGeo = new THREE.SphereGeometry(PR, 36, 24);
+const playerGeo = new THREE.SphereGeometry(PR, 64, 40);
 const ringGeo = new THREE.RingGeometry(PR + 2.5, PR + 5, 48);
-const texCache = {};
 let players = [];
 
 function makePlayer(team, ctrl, label, look) {
   const p = disc(0, 0, PR, 0.5, 0.5);
   // il tuo giocatore usa il tuo profilo; gli altri umani online arrivano con il loro
   if (!look && (ctrl === "solo" || ctrl === "p1")) look = myLook();
-  look = look ? safeLook(look) : { name: "", tag: "team", skin: "classic" };
+  look = look ? safeLook(look) : { name: "", skin: "classic" };
   if (look.name) label = look.name;
-  const tag = TAGS[look.tag];
   Object.assign(p, { team, ctrl, kicking: false, hold: 0, charge: 0, armed: 0, armType: 1, armPow: 0, aiCd: 0, flash: 0, aiT: 0, aiLast: { x: 0, z: 0, kick: false, cross: false }, aimJ: 0, role: "atk" });
-  const tk = team + ":" + look.skin;
-  texCache[tk] = texCache[tk] || playerTexture(TEAMS[team].col, look.skin);
-  p.mesh = new THREE.Mesh(playerGeo, new THREE.MeshStandardMaterial({ map: texCache[tk], roughness: 0.32, metalness: 0.08 }));
+  p.mesh = new THREE.Mesh(playerGeo, sphereMaterial("player", look.skin, TEAMS[team].col));
   p.mesh.castShadow = true;
   p.ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false }));
   p.ring.rotation.x = -Math.PI / 2;
-  p.label = ctrl === "cpu" ? labelSprite(label, "rgba(10,20,16,0.6)") : labelSprite(label, tag ? tag[0] : TEAMS[team].dark, tag ? tag[1] : "#fff");
+  p.label = ctrl === "cpu" ? labelSprite(label, "rgba(10,20,16,0.6)") : labelSprite(label, TEAMS[team].dark);
   // barra di carica: arco attorno al cerchio, si riempie in senso orario partendo dall'alto
   p.bar = new THREE.Mesh(new THREE.RingGeometry(PR + 6, PR + 10, 60, 1, Math.PI / 2, -Math.PI * 2), new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.95, depthWrite: false, side: THREE.DoubleSide }));
   p.bar.rotation.x = -Math.PI / 2; p.bar.geometry.setDrawRange(0, 0);
@@ -1172,15 +1428,9 @@ bindSeg("netfmt", "netfmt", v => +v);
 bindSeg("mow", "mow", v => v, () => drawPitch(opts.mow));
 bindSeg("skin", "skin", v => v, refreshPreview);
 bindSeg("ballst", "ball", v => v, () => { setBallStyle(opts.ball); refreshPreview(); });
-(function bindTags() {
-  const el = $("tag");
-  const sync = () => el.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(opts.tag === b.dataset.v)));
-  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; opts.tag = b.dataset.v; saveOpts(); sync(); refreshPreview(); });
-  sync();
-})();
 $("pname").value = cleanName(opts.name);
 $("pname").addEventListener("input", () => { opts.name = cleanName($("pname").value); saveOpts(); refreshPreview(); });
-$("openCustom").addEventListener("click", () => { show("custom"); refreshPreview(); });
+$("openCustom").addEventListener("click", () => { show("custom"); refreshPreview(); setTimeout(drawSwatches, 30); });
 $("closeCustom").addEventListener("click", () => { show("menu"); });
 
 /* Anteprima del giocatore personalizzato: piccola scena separata */
@@ -1194,18 +1444,15 @@ function refreshPreview() {
     PV.scene.add(new THREE.HemisphereLight(0xffffff, 0x1b3a26, 0.9));
     const d = new THREE.DirectionalLight(0xffffff, 0.7); d.position.set(-40, 80, 60); PV.scene.add(d);
     PV.cam = new THREE.PerspectiveCamera(30, 1, 1, 1000); PV.cam.position.set(0, 58, 138); PV.cam.lookAt(2, 17, 0);
-    PV.me = new THREE.Mesh(playerGeo, new THREE.MeshStandardMaterial({ roughness: 0.32, metalness: 0.08 })); PV.me.position.set(-6, PR, 0); PV.scene.add(PV.me);
-    PV.ball = new THREE.Mesh(new THREE.SphereGeometry(BR, 32, 24), new THREE.MeshStandardMaterial({ roughness: 0.4 })); PV.ball.position.set(20, BR, 10); PV.scene.add(PV.ball);
+    PV.env = makeEnv(PV.r);
+    PV.me = new THREE.Mesh(playerGeo, new THREE.MeshStandardMaterial()); PV.me.position.set(-6, PR, 0); PV.scene.add(PV.me);
+    PV.ball = new THREE.Mesh(new THREE.SphereGeometry(BR, 48, 32), new THREE.MeshStandardMaterial()); PV.ball.position.set(20, BR, 10); PV.scene.add(PV.ball);
   }
   const look = myLook();
-  const tk = "red:" + look.skin;
-  texCache[tk] = texCache[tk] || playerTexture(TEAMS.red.col, look.skin);
-  PV.me.material.map = texCache[tk]; PV.me.material.needsUpdate = true;
-  if (PV.ball.material.map) PV.ball.material.map.dispose();
-  PV.ball.material.map = ballTexture(opts.ball); PV.ball.material.needsUpdate = true;
+  PV.me.material.dispose(); PV.me.material = sphereMaterial("player", look.skin, TEAMS.red.col, PV.env);
+  PV.ball.material.dispose(); PV.ball.material = sphereMaterial("ball", ballKey(), undefined, PV.env);
   if (PV.label) { PV.scene.remove(PV.label); PV.label.material.map.dispose(); PV.label.material.dispose(); }
-  const tag = TAGS[look.tag];
-  PV.label = labelSprite(look.name || "TU", tag ? tag[0] : TEAMS.red.dark, tag ? tag[1] : "#fff");
+  PV.label = labelSprite(look.name || "TU", TEAMS.red.dark);
   PV.label.position.set(-6, PR * 2 + 12, 0); PV.scene.add(PV.label);
 }
 function drawPreview(t) {
