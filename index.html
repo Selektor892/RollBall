@@ -61,6 +61,16 @@ body { margin: 0; overflow: hidden; background: var(--bg); color: var(--chalk); 
 #netStatus { min-height: 1.4em; }
 #netStatus.err { color: #ff8a80; }
 #netStatus.ok { color: var(--card); }
+.seg.mows { flex-wrap: wrap; }
+.seg.mows button { flex: 1 1 15%; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 4px; font-size: 12.5px; }
+.seg.mows button + button { border-left: 1px solid var(--line); }
+.sw { --a: #3a9a57; --b: #2a7d43; width: 34px; height: 20px; border-radius: 4px; display: block; border: 1px solid rgba(255,255,255,.25); }
+.sw-stripes { background: repeating-linear-gradient(90deg, var(--a) 0 6px, var(--b) 6px 12px); }
+.sw-rows { background: repeating-linear-gradient(0deg, var(--a) 0 5px, var(--b) 5px 10px); }
+.sw-checks { background: conic-gradient(var(--a) 25%, var(--b) 0 50%, var(--a) 0 75%, var(--b) 0) 0 0 / 12px 10px; }
+.sw-diag { background: repeating-linear-gradient(45deg, var(--a) 0 4px, var(--b) 4px 8px); }
+.sw-diamonds { background: conic-gradient(from 45deg, var(--a) 25%, var(--b) 0 50%, var(--a) 0 75%, var(--b) 0) 0 0 / 10px 10px; }
+.sw-rings { background: repeating-radial-gradient(circle at 50% 50%, var(--a) 0 3px, var(--b) 3px 6px); }
 #target { margin-top: 6px; text-align: center; font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--chalk); text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 #banner { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 6; }
 #banner .in { text-align: center; opacity: 0; transform: scale(.7); }
@@ -134,6 +144,8 @@ button:focus-visible { outline: 2px solid var(--card); outline-offset: 2px; }
 body.touchdev .touchOnly { display: revert; }
 body.touchdev .keyOnly { display: none; }
 @media (max-width: 520px) {
+  .seg.mows button { flex-basis: 30%; }
+  .seg.mows button:nth-child(4) { border-left: 0; }
   .modes, .keys, .online { grid-template-columns: 1fr; }
   .tabs button small { display: none; }
   .logo h1 { font-size: 36px; }
@@ -263,6 +275,17 @@ body.touchdev .keyOnly { display: none; }
         </div></div>
     </div>
     <div>
+      <div class="lbl">Taglio del prato</div>
+      <div class="seg mows" id="mow">
+        <button data-v="stripes" aria-pressed="true"><i class="sw sw-stripes"></i>Strisce</button>
+        <button data-v="rows" aria-pressed="false"><i class="sw sw-rows"></i>Orizzontali</button>
+        <button data-v="checks" aria-pressed="false"><i class="sw sw-checks"></i>Scacchi</button>
+        <button data-v="diag" aria-pressed="false"><i class="sw sw-diag"></i>Diagonali</button>
+        <button data-v="diamonds" aria-pressed="false"><i class="sw sw-diamonds"></i>Rombi</button>
+        <button data-v="rings" aria-pressed="false"><i class="sw sw-rings"></i>Cerchi</button>
+      </div>
+    </div>
+    <div>
       <div class="lbl">Comandi</div>
       <div class="keys touchOnly" style="grid-template-columns:1fr">
         <div><h4><i style="background:var(--red)"></i>Touch · Giocatore 1</h4>
@@ -334,7 +357,7 @@ const DIFF = {
 };
 
 /* ---------- Opzioni dal menu (ricordate nel browser se possibile) ---------- */
-const opts = { mode: "solo", diff: "normal", dur: 180, goals: 0, view: 0, tab: "local", netfmt: 1 };
+const opts = { mode: "solo", diff: "normal", dur: 180, goals: 0, view: 0, tab: "local", netfmt: 1, mow: "stripes" };
 try { Object.assign(opts, JSON.parse(localStorage.getItem("rollball-opts") || "{}")); } catch (e) {}
 function saveOpts() { try { localStorage.setItem("rollball-opts", JSON.stringify(opts)); } catch (e) {} }
 
@@ -362,25 +385,50 @@ const maxAniso = renderer.capabilities.getMaxAnisotropy();
 
 /* Campo: un'unica texture disegnata su canvas, con strisce d'erba e linee di gesso */
 const PX = W + 110, PZ = H + 90;
+const MOWS = ["stripes", "rows", "checks", "diag", "diamonds", "rings"];
+let drawPitch = () => {};
 (function buildPitch() {
   const cw = 2048, s = cw / (2 * PX), ch = Math.round(2 * PZ * s);
   const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch;
   const g = cv.getContext("2d");
   const X = x => (x + PX) * s, Z = z => (z + PZ) * s;
-  const stripe = 2 * W / 12;
-  for (let i = -20; i < 20; i++) {
-    g.fillStyle = i % 2 ? "#2f8a4a" : "#2a7d43";
-    g.fillRect(X(-W + i * stripe), 0, stripe * s + 1, ch);
+  // rumore fisso, così cambiando taglio il prato non "frigge"
+  const grain = []; for (let i = 0; i < 26000; i++) grain.push([Math.random() * cw, Math.random() * ch, Math.random() < 0.5]);
+  const LIGHT = "#2f8a4a", DARK = "#2a7d43";
+  const band = 2 * W / 12;   // larghezza di una passata del tosaerba (12 strisce nel campo)
+  // disegna il taglio in coordinate di campo (origine al centro)
+  function mow(cut) {
+    g.save();
+    g.setTransform(s, 0, 0, s, PX * s, PZ * s);
+    g.fillStyle = DARK; g.fillRect(-PX, -PZ, 2 * PX, 2 * PZ);
+    g.fillStyle = LIGHT;
+    const R = Math.hypot(PX, PZ) + band;
+    if (cut === "rows") {
+      const b = 2 * H / 7;
+      for (let i = -8; i < 8; i++) if (i % 2 === 0) g.fillRect(-PX, -H + i * b, 2 * PX, b);
+    } else if (cut === "checks") {
+      const b = 2 * H / 7;
+      for (let i = -12; i < 12; i++) for (let j = -8; j < 8; j++) if ((i + j) % 2 === 0) g.fillRect(-W + i * band, -H + j * b, band, b);
+    } else if (cut === "diag" || cut === "diamonds") {
+      g.rotate(Math.PI / 4);
+      const b = band * 0.85;
+      if (cut === "diag") { for (let i = -12; i < 12; i++) if (i % 2 === 0) g.fillRect(i * b, -R, b, 2 * R); }
+      else { for (let i = -12; i < 12; i++) for (let j = -12; j < 12; j++) if ((i + j) % 2 === 0) g.fillRect(i * b, j * b, b, b); }
+    } else if (cut === "rings") {
+      const b = band * 0.8;
+      for (let k = Math.ceil(R / b); k > 0; k--) { g.fillStyle = k % 2 ? LIGHT : DARK; g.beginPath(); g.arc(0, 0, k * b, 0, Math.PI * 2); g.fill(); }
+    } else {
+      for (let i = -20; i < 20; i++) if (i % 2 === 0) g.fillRect(-W + i * band, -PZ, band, 2 * PZ);
+    }
+    g.restore();
   }
+  function lines() {
   // erba fuori dalle linee più scura
   g.fillStyle = "rgba(6,30,16,0.28)";
   g.fillRect(0, 0, cw, Z(-H)); g.fillRect(0, Z(H), cw, ch - Z(H));
   g.fillRect(0, Z(-H), X(-W), Z(H) - Z(-H)); g.fillRect(X(W), Z(-H), cw - X(W), Z(H) - Z(-H));
   // rumore leggero
-  for (let i = 0; i < 26000; i++) {
-    g.fillStyle = Math.random() < 0.5 ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.035)";
-    g.fillRect(Math.random() * cw, Math.random() * ch, 2, 2);
-  }
+  for (const [x, y, lt] of grain) { g.fillStyle = lt ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.035)"; g.fillRect(x, y, 2, 2); }
   g.strokeStyle = "rgba(245,250,245,0.92)"; g.lineWidth = 3 * s; g.lineJoin = "round";
   g.strokeRect(X(-W), Z(-H), 2 * W * s, 2 * H * s);
   g.beginPath(); g.moveTo(X(0), Z(-H)); g.lineTo(X(0), Z(H)); g.stroke();
@@ -396,8 +444,11 @@ const PX = W + 110, PZ = H + 90;
     g.fillRect(Math.min(X(bx), X(bx + sd * GD)), Z(-GH), GD * s, 2 * GH * s);
     g.fillStyle = "rgba(245,250,245,0.92)";
   }
+  }
   const tex = new THREE.CanvasTexture(cv);
   tex.anisotropy = maxAniso;
+  drawPitch = cut => { mow(MOWS.includes(cut) ? cut : "stripes"); lines(); tex.needsUpdate = true; };
+  drawPitch(opts.mow);
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2 * PX, 2 * PZ), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95 }));
   mesh.rotation.x = -Math.PI / 2; mesh.receiveShadow = true;
   scene.add(mesh);
@@ -890,6 +941,7 @@ bindSeg("goals", "goals", v => +v);
 const syncView = bindSeg("view", "view", v => +v, () => { G.view = opts.view; fitCamera(); });
 function toggleView() { opts.view = G.view = 1 - G.view; saveOpts(); syncView(); fitCamera(); }
 bindSeg("netfmt", "netfmt", v => +v);
+bindSeg("mow", "mow", v => v, () => drawPitch(opts.mow));
 function setTab(t) {
   opts.tab = t; saveOpts();
   $("tabs").querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));

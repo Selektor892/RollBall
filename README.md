@@ -13,6 +13,7 @@ Calcio 3D a sfere con visuale dall'alto, nel browser. Giocatori e palla sono sfe
 - **Durata**: 2, 3 o 5 minuti, oppure senza limite. Pareggio a fine tempo: golden goal.
 - **Gol per vincere**: libero, 3, 5, 7 o 10.
 - **CPU**: facile, normale o difficile.
+- **Taglio del prato**: strisce, orizzontali, scacchi, diagonali, rombi o cerchi. Il campo cambia subito, anche dietro al menu.
 - **Visuale**: inclinata (3D) o dall'alto. In partita si cambia con V o con il tasto 3D sul telefono.
 
 ## Comandi
