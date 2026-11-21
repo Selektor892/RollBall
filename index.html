@@ -179,6 +179,7 @@ body.touchdev .keyOnly { display: none; }
 </head>
 <body>
 
+
 <canvas id="c"></canvas>
 
 <div id="hud">
@@ -400,9 +401,9 @@ const DT = 1 / 60;
 
 const TEAMS = { red: { name: "Rossi", col: 0xe8433f, dark: "#7a1d1a" }, blue: { name: "Blu", col: 0x2f78f0, dark: "#163a78" } };
 const DIFF = {
-  easy:   { react: 14, speed: 0.72, align: 0.88, range: 240, look: 4 },
-  normal: { react: 7,  speed: 0.88, align: 0.8,  range: 320, look: 8 },
-  hard:   { react: 2,  speed: 1.0,  align: 0.76, range: 400, look: 12 },
+  easy:   { react: 14, speed: 0.72, align: 0.88, range: 240, look: 4,  lob: 0.35 },
+  normal: { react: 7,  speed: 0.88, align: 0.8,  range: 320, look: 8,  lob: 0.75 },
+  hard:   { react: 2,  speed: 1.0,  align: 0.76, range: 400, look: 12, lob: 0.95 },
 };
 
 /* ---------- Opzioni dal menu (ricordate nel browser se possibile) ---------- */
@@ -1150,6 +1151,11 @@ function aiInput(p) {
     if (dBall < PR + BR + KICK_REACH + 1 && align > D.align && (dGoal < D.range || Math.random() < 0.03)) { kick = true; pow = clamp(dGoal / 330, 0.45, 1); }
     // dal fondo: cross a parabola verso il centro dell'area
     if (kick && ax !== goalX) { kick = false; cross = true; pow = 0.45 + Math.random() * 0.2; }
+    // cross come tiro: pallonetto sopra chi copre la porta, oppure dalla distanza se il portiere è fuori dai pali
+    else if (kick) {
+      const lob = aiLob(p, atk, goalX);
+      if (lob !== null && Math.random() < D.lob) { kick = false; cross = true; pow = lob; }
+    }
     // spazzata d'emergenza vicino alla propria porta
     if (dBall < PR + BR + KICK_REACH + 1 && Math.abs(ball.x - ownX) < 130 && (ball.x - p.x) * atk > 0) { kick = true; cross = false; pow = 1; }
     if (kick || cross) p.aimJ = (Math.random() - 0.5) * GH * 0.9;
@@ -1176,6 +1182,36 @@ function aiThreat(p, D, atk, ownX) {
     return { x: ownX + atk * back, z: clamp(ball.z * 0.4, -GH, GH) };
   }
   return null;
+}
+
+// cerca una potenza di cross che scavalchi gli avversari davanti e ricada sotto la traversa
+function aiLob(p, atk, goalX) {
+  let dx = ball.x - p.x, dz = ball.z - p.z; const dl = Math.hypot(dx, dz) || 1; dx /= dl; dz /= dl;
+  if (dx * atk < 0.6) return null;
+  const opp = players.filter(q => q.team !== p.team);
+  // c'è qualcuno sulla traiettoria tra palla e porta?
+  const block = opp.filter(q => { const a = (q.x - ball.x) * dx + (q.z - ball.z) * dz, side = Math.abs((q.x - ball.x) * -dz + (q.z - ball.z) * dx); return a > 25 && side < PR + BR + 14; });
+  const dGoal = Math.abs(goalX - ball.x);
+  const keeperOut = opp.every(q => Math.abs(q.x - goalX) > 70 || Math.abs(q.z) > GH + 20);
+  if (!block.length && !(keeperOut && dGoal > 170 && dGoal < 420)) return null;
+  let best = null;
+  for (let c = 0; c <= 1.001; c += 0.05) {
+    const sp = CROSS.min + (CROSS.max - CROSS.min) * c;
+    let x = ball.x, z = ball.z, vx = ball.vx * 0.3 + dx * sp, vz = ball.vz * 0.3 + dz * sp, y = 1, vy = CROSS.up0 + (CROSS.up1 - CROSS.up0) * c;
+    let ok = true, done = false;
+    for (let i = 0; i < 300 && !done; i++) {
+      x += vx; z += vz; vy -= GRAV; y += vy;
+      if (y <= 0) { y = 0; if (vy < -1.2) { vy = -vy * 0.45; vx *= 0.9; vz *= 0.9; } else vy = 0; }
+      if (Math.abs(z) > H - BR) { ok = false; break; }
+      const d = y > 2 ? 0.996 : B_DAMP; vx *= d; vz *= d;
+      for (const q of block) if (Math.hypot(q.x - x, q.z - z) < PR + BR && y < HEAD + 4) ok = false;
+      if (!ok) break;
+      if ((x - goalX) * atk > 0) { done = true; if (y > GT - BR - 4 || Math.abs(z) > GH - BR) ok = false; }
+      if (Math.hypot(vx, vz) < 0.3) break;
+    }
+    if (ok && done) { best = c; break; }   // la più dolce che entra
+  }
+  return best;
 }
 
 // traiettoria prevista della palla (stessa fisica di step(), senza giocatori)
