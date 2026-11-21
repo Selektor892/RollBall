@@ -389,7 +389,7 @@ const GH = 64, GD = 34, GT = 40;  // metà luce della porta, profondità, altezz
 const PR = 15, BR = 10, POSTR = 8;
 const OX = W + 60, OZ = H + 50;   // limite di movimento dei giocatori (fuori dalle linee)
 const KO_R = 75;                  // raggio cerchio di centrocampo
-const P_ACC = 0.1, P_ACC_K = 0.07, P_DAMP = 0.96, B_DAMP = 0.99, KICK_REACH = 4;
+const P_ACC = 0.112, P_ACC_K = 0.078, P_DAMP = 0.96, B_DAMP = 0.99, KICK_REACH = 4;
 // calci a carica: 0 = tocco veloce, 1 = carica piena (circa 0,8 secondi)
 const CHARGE_FRAMES = 48, ARM_FRAMES = 12;
 const SHOT = { min: 3.2, max: 7.4 };                  // tiro rasoterra
@@ -1118,7 +1118,13 @@ function aiInput(p) {
   const dBall = dist(p);
   let tx, tz, kick = false, cross = false, pow = 1;
 
-  if (p.role === "def") {
+  // palla alta o lancio veloce verso la propria metà: vai dove ricade, sempre dal lato della propria porta
+  const air = aiAirTarget(p, D, atk, ownX) || aiThreat(p, D, atk, ownX);
+  if (air) {
+    p.aiT = Math.min(p.aiT, 3);
+    tx = air.x; tz = air.z;
+    if (dBall < PR + BR + KICK_REACH + 1 && ball.y < HEAD - 4 && (ball.x - p.x) * atk > 0) { kick = true; pow = 1; }
+  } else if (p.role === "def") {
     tx = ownX + atk * 95 + (bx - ownX) * 0.38;
     tz = clamp(bz * 0.6, -GH - 30, GH + 30);
     if (dBall < PR + BR + KICK_REACH + 2 && (ball.x - p.x) * atk > 0) kick = true;
@@ -1153,6 +1159,65 @@ function aiInput(p) {
   const mag = Math.min(1, ml / 14) * D.speed;
   p.aiLast = { x: mx / ml * mag, z: mz / ml * mag, kick: false, cross: false, shot: kick ? 1 : cross ? 2 : 0, pow };
   return p.aiLast;
+}
+
+// un avversario sta caricando un calcio vicino alla palla, lontano dalla nostra porta: arretra per coprire il lancio
+function aiThreat(p, D, atk, ownX) {
+  const far = Math.abs(ball.x - ownX);
+  if (far < 160 || ball.y > 2) return null;
+  const th = players.find(q => q.team !== p.team && (q.hold || q.armed > 0) && Math.hypot(ball.x - q.x, ball.z - q.z) < PR + BR + 60);
+  if (!th) return null;
+  const mates = players.filter(q => q.team === p.team && q !== p && q.ctrl === "cpu");
+  if (mates.some(q => Math.abs(q.x - ownX) < Math.abs(p.x - ownX) - 30)) return null;
+  const c = th.hold ? th.charge : th.armPow;
+  if ((th.hold || th.armType) === 2 || th.hold === 2) {
+    // cross: tanto più indietro quanto più è carico (la barra si vede!)
+    const back = clamp(far - (140 + 240 * c), 40, far - 40);
+    return { x: ownX + atk * back, z: clamp(ball.z * 0.4, -GH, GH) };
+  }
+  return null;
+}
+
+// traiettoria prevista della palla (stessa fisica di step(), senza giocatori)
+const aiPath = [];
+function predictBall(n) {
+  let x = ball.x, z = ball.z, vx = ball.vx, vz = ball.vz, y = ball.y, vy = ball.vy;
+  aiPath.length = 0;
+  for (let i = 0; i < n; i++) {
+    x += vx; z += vz;
+    if (!(y <= 0 && vy <= 0)) { vy -= GRAV; y += vy; if (y <= 0) { y = 0; if (vy < -1.2) { vy = -vy * 0.45; vx *= 0.9; vz *= 0.9; } else vy = 0; } }
+    if (Math.abs(z) > H - BR) { z = Math.sign(z) * (H - BR); vz *= -0.6; }
+    const d = y > 2 ? 0.996 : B_DAMP; vx *= d; vz *= d;
+    aiPath.push(x, z, y);
+    if (Math.abs(x) > W + BR) break;
+  }
+  return aiPath;
+}
+function aiAirTarget(p, D, atk, ownX) {
+  const toOwn = -ball.vx * atk;                 // velocità verso la propria porta
+  const high = ball.y > HEAD - 6 || ball.vy > 1;
+  if (toOwn < 0.5) return null;
+  const path = predictBall(150), n = path.length / 3;
+  const ex = path[(n - 1) * 3], ez = path[(n - 1) * 3 + 1];
+  const intoGoal = Math.abs(ex - ownX) < BR + 4 && Math.abs(ez) < GH + BR;   // finirebbe nella nostra porta
+  if (!high && !intoGoal) return null;
+  // il giocatore più vicino alla propria porta copre; l'altro (se CPU) resta sul suo ruolo
+  const mates = players.filter(q => q.team === p.team && q !== p && q.ctrl === "cpu");
+  if (mates.some(q => Math.abs(q.x - ownX) < Math.abs(p.x - ownX) - 30)) return null;
+  const vmax = P_ACC * P_DAMP / (1 - P_DAMP) * D.speed;
+  for (let i = 0; i < n; i++) {
+    const x = path[i * 3], z = path[i * 3 + 1], y = path[i * 3 + 2];
+    if (y > HEAD - 6) continue;
+    // punto raggiungibile in tempo: mettiti tra la palla e la porta
+    const sx = x - atk * (PR + BR - 4), sz = z;
+    const dx = sx - p.x, dz = sz - p.z, dl = Math.hypot(dx, dz) || 1;
+    const vTo = (p.vx * dx + p.vz * dz) / dl;   // già in corsa verso il punto?
+    const t = Math.max(0, dl - 6) / vmax + 24 * (1 - clamp(vTo / vmax, -1, 1)) + D.react * 0.5;
+    if (t <= i) return { x: sx, z: sz };
+    if (Math.abs(x - ownX) < 60) break;
+  }
+  // non ci arriva in tempo: torna in porta sulla linea della palla
+  return { x: ownX + atk * (PR + 4), z: clamp(ez, -GH + PR, GH - PR) };
 }
 
 /* ---------- Fisica ---------- */
@@ -1238,6 +1303,7 @@ function doKick(p, nx, nz) {
     ball.vx += nx * sp * ball.invM; ball.vz += nz * sp * ball.invM;
   }
   p.flash = 1; p.aiCd = 20; touched();
+  for (const q of players) if (q.ctrl === "cpu" && q.team !== p.team) q.aiT = Math.min(q.aiT, 2);   // la CPU reagisce subito ai calci
   sfx.kick((G.live ? 0.6 : 0.25) + c * 0.5); netEvent("k", players.indexOf(p));
 }
 function ballAir() {
