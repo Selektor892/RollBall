@@ -1933,6 +1933,10 @@ function render(a) {
   const lerp = (p, c) => p + (c - p) * a;
   const ox = m => G.net === "guest" ? (m.ex || 0) : 0, oz = m => G.net === "guest" ? (m.ez || 0) : 0;
   ball.mesh.position.set(lerp(ball.px, ball.x) + ox(ball), BR + lerp(ball.py, ball.y), lerp(ball.pz, ball.z) + oz(ball));
+  // la mia squadra: le barre degli avversari sono semitrasparenti (in locale a due squadre tutte piene)
+  const mine = G.net ? players[NET.me] : null;
+  const humans = players.filter(p => p.ctrl !== "cpu" && p.ctrl !== "net");
+  const myTeam = mine ? mine.team : humans.length && humans.every(p => p.team === humans[0].team) ? humans[0].team : null;
   for (const p of players) {
     const x = lerp(p.px, p.x) + ox(p), z = lerp(p.pz, p.z) + oz(p);
     p.mesh.position.set(x, PR, z);
@@ -1941,9 +1945,16 @@ function render(a) {
     const s = 1 + p.flash * 0.45; p.ring.scale.set(s, s, 1);
     p.label.position.set(x, PR * 2 + 12, z - (G.view ? 24 : 0));
     p.bar.position.set(x, 0.8, z);
-    const segs = Math.round(60 * (p.hold ? p.charge : 0));
+    // barra di carica: la CPU carica in un attimo, quindi la mostriamo mentre il calcio è armato e poi sfuma
+    let v = 0, t = 0;
+    if (p.hold) { v = p.charge; t = p.hold; }
+    else if (p.ctrl === "cpu" && p.armed > 0) { v = p.armPow; t = p.armType; }
+    if (t) { p.barV = v; p.barT = t; p.barA = 1; }
+    else p.barA = (p.barA || 0) * 0.93;
+    const segs = p.barA > 0.05 ? Math.max(1, Math.round(60 * (p.barV || 0))) : 0;
     p.bar.geometry.setDrawRange(0, segs * 6);
-    if (p.hold) p.bar.material.color.setHex(CHARGE_COL[p.hold]);
+    if (p.barT) p.bar.material.color.setHex(CHARGE_COL[p.barT]);
+    p.bar.material.opacity = (myTeam && p.team !== myTeam ? 0.5 : 0.95) * Math.min(1, p.barA * 1.2);
   }
   updatePadBars();
   for (const sd of [-1, 1]) {
